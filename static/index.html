@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Wallet Managment</title>
+  	<meta charset="utf-8">
+  	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- Bootstrap core CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.17/vue.min.js"></script>
+    <script src="https://unpkg.com/vue-router"></script>
+    <script src="https://unpkg.com/vue-resource"></script>
+    <script src="https://unpkg.com/http-vue-loader"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@7.28.4/dist/sweetalert2.min.css">
+    <link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/app.css">
+  </head>
+
+  <body>
+<!--     <div id="app">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">BlankDAO</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavDropdown">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link home-item"> <router-link to="/">Home</router-link> </a>
+            </li>
+            <li class="nav-item dropdown" v-if="userInfo.isLogin">
+              <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                aria-expanded="false">Payment</a>
+              <div class="dropdown-menu">
+                <a class="dropdown-item"><router-link to="/payment">Payment</router-link></a>
+                <div class="dropdown-divider"></div>
+              </div>
+            </li>
+            <li class="nav-item dropdown" v-if="userInfo.userType == 'admin' || userInfo.userType == 'super admin'">
+              <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                aria-expanded="false">Managment</a>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="#/admin/dashboard/user-managment">User Managment</a>
+                <a class="dropdown-item" href="#/admin/dashboard/role-managment">Role Managment</a>
+                <div class="dropdown-divider"></div>
+              </div>
+            </li>
+            <li class="nav-item dropdown" v-if="userInfo.isLogin">
+              <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                aria-expanded="false">Setting</a>
+              <div class="dropdown-menu">
+                <a class="dropdown-item"><router-link to="/user/change-password">Change Password</router-link></a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" v-if="userInfo.userType='super admin'"><router-link to="/admin/dashboard/shutdown-api">Shutdown Api</router-link></a>
+              </div>
+            </li>
+            <li class="nav-item dropdown" v-if="userInfo.userType == 'admin' || userInfo.userType == 'super admin'">
+              <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                aria-expanded="false">Reports</a>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="#/admin/dashboard/login-report">Login History</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="#/admin/dashboard/log-report">Logs History</a>
+              </div>
+            </li>
+          </ul>
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <a class="nav-link" @click="goToDashboard(userInfo.userType)"> User: {{ userInfo.fullName }} </a>
+            </li>
+            <li class="nav-item" v-show="!userInfo.isLogin">
+              <a class="nav-link"> <router-link to="/login">login</router-link> </a>
+            </li>
+            <li class="nav-item" v-show="userInfo.isLogin">
+              <a class="nav-link" @click="singout"> logout </a>
+            </li>
+           </ul>
+        </div>
+      </nav>
+      <router-view></router-view>
+
+    </div> -->
+
+<div class="page-wrapper chiller-theme toggled" id="app">
+  <a id="show-sidebar" class="btn btn-sm btn-dark" href="#">
+    <i class="fas fa-bars"></i>
+  </a>
+  <nav id="sidebar" class="sidebar-wrapper">
+    <div class="sidebar-content">
+      <div class="sidebar-brand">
+        <a href="#">BlankDAO</a>
+        <div id="close-sidebar">
+          <i class="fas fa-times"></i>
+        </div>
+      </div>
+      <div class="sidebar-header" style="display: none;">
+        <div class="user-pic">
+          <img class="img-responsive img-rounded" src="https://raw.githubusercontent.com/azouaoui-med/pro-sidebar-template/gh-pages/src/img/user.jpg"
+            alt="User picture">
+        </div>
+        <div class="user-info">
+          <span class="user-name">Jhon
+            <strong>Smith</strong>
+          </span>
+          <span class="user-role">Administrator</span>
+          <span class="user-status">
+            <i class="fa fa-circle"></i>
+            <span>Online</span>
+          </span>
+        </div>
+      </div>
+      <div class="sidebar-menu">
+        <ul>
+          <li class="header-menu">
+            <span>General</span>
+          </li>
+          <li class="active">
+            <a href="#">
+              <i class="fa fa-tachometer-alt"></i>
+              <span>Dashboard</span>
+              <!-- <span class="badge badge-pill badge-warning">New</span> -->
+            </a>
+          </li>
+          <li class="">
+            <a href="#">
+              <i class="fa fa-shopping-cart"></i>
+              <span>Rewards</span>
+              <!-- <span class="badge badge-pill badge-danger">3</span> -->
+            </a>
+          </li>
+          <li class="">
+            <a href="#/referrer">
+              <i class="far fa-gem"></i>
+              <span>Referrer</span>
+            </a>
+          </li>
+<!--           <li class="sidebar-dropdown">
+            <a href="#">
+              <i class="fa fa-chart-line"></i>
+              <span>Charts</span>
+            </a>
+            <div class="sidebar-submenu">
+              <ul>
+                <li>
+                  <a href="#">Pie chart</a>
+                </li>
+                <li>
+                  <a href="#">Line chart</a>
+                </li>
+                <li>
+                  <a href="#">Bar chart</a>
+                </li>
+                <li>
+                  <a href="#">Histogram</a>
+                </li>
+              </ul>
+            </div>
+          </li> -->
+
+          <li class="header-menu">
+            <span>Extra</span>
+          </li>
+          <li>
+            <a href="#">
+              <i class="fa fa-folder"></i>
+              <span>‌‌Blankdao.org</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+      <!-- sidebar-menu  -->
+    </div>
+    <!-- sidebar-content  -->
+    <div class="sidebar-footer">
+      <a href="#">
+        <i class="fa fa-bell"></i>
+        <!-- <span class="badge badge-pill badge-warning notification">3</span> -->
+      </a>
+      <a href="#">
+        <i class="fa fa-envelope"></i>
+        <!-- <span class="badge badge-pill badge-success notification">7</span> -->
+      </a>
+      <a href="#">
+        <i class="fa fa-cog"></i>
+        <!-- <span class="badge-sonar"></span> -->
+      </a>
+      <a href="#">
+        <i class="fa fa-power-off"></i>
+      </a>
+    </div>
+  </nav>
+  <!-- sidebar-wrapper  -->
+  <main class="page-content">
+    <div class="container-fluid">
+      <router-view></router-view>
+
+
+    </div>
+
+  </main>
+  <!-- page-content" -->
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- JQuery -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!-- Bootstrap tooltips -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.4/umd/popper.min.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.min.js"></script>
+
+    <script src="assets/js/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@7.28.4/dist/sweetalert2.min.js"></script>
+    <script src="assets/js/abiCrowdSale.js"></script>
+    <script src="assets/js/app.js"></script>
+  </body>
+</html>
