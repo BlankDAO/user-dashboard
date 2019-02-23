@@ -93,7 +93,8 @@ def check_account():
     w3 = Web3(HTTPProvider(config.INFURA_URL))
     res = allow_child(mycol, w3.toChecksumAddress(data['account']))
     if res:
-        raise ErrorToClient('Your account has already been registered', {'referrer': res['parent']})
+        if res['registered'] == True:
+            raise ErrorToClient('Your account has already been registered', {'referrer': res['parent']})
     return json.dumps({'status': True, 'msg': 'Allow'})
 
 
