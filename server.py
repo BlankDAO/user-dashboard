@@ -127,11 +127,26 @@ def add_referrer():
 def get_referrer():
     data = json.loads(request.data)
     account = check_eth_addr(data['account'])
-    mydoc = g.db.referrers.find({"account": account})
-    if mydoc:
-        if mydoc['registered']:
-            return json.dumps({'referrer': mydoc['referrer'], 'status': True})
+    doc = g.db.referrers.find({"account": account})
+    if doc:
+        if doc['registered']:
+            return json.dumps({'referrer': doc['referrer'], 'status': True})
     return json.dumps({'msg': 'No referrer', 'status': False})
+
+
+@app.route('/get-referred-investors', methods=['POST'])
+def get_referred_investors():
+    referred_investors = []
+    data = json.loads(request.data)
+    account = check_eth_addr(data['account'])
+    docs = g.db.referrers.find({"referrer": account})
+    for doc in docs:
+        if doc['registered']:
+            referred_investors.append(doc['account'])
+    return json.dumps({
+        'referred-investors': referred_investors,
+        'status': True
+    })
 
 
 if __name__ == '__main__':
