@@ -4,18 +4,14 @@ from flask import Flask, redirect, request, g, session
 from web3 import Web3, HTTPProvider
 from io import BytesIO as IO
 from datetime import timedelta
-from eth_keys import keys
-import functools
 import pymongo
 import config
 import gzip
 import json
 import os
 
-
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
-
 
 abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
@@ -31,13 +27,11 @@ def gzip_content(response):
     if 'gzip' not in accept_encoding.lower():
         return response
     response.direct_passthrough = False
-    if (response.status_code < 200 or
-        response.status_code >= 300 or
-        'Content-Encoding' in response.headers):
+    if (response.status_code < 200 or response.status_code >= 300
+            or 'Content-Encoding' in response.headers):
         return response
     gzip_buffer = IO()
-    gzip_file = gzip.GzipFile(mode='wb',
-                              fileobj=gzip_buffer)
+    gzip_file = gzip.GzipFile(mode='wb', fileobj=gzip_buffer)
     gzip_file.write(response.data)
     gzip_file.close()
     response.data = gzip_buffer.getvalue()
@@ -49,13 +43,20 @@ def gzip_content(response):
 
 @app.errorhandler(ErrorToClient)
 def error_to_client(error):
-    return json.dumps({'msg': error.args[0], 'args': error.args[1:], 'status': False})
+    return json.dumps({
+        'msg': error.args[0],
+        'args': error.args[1:],
+        'status': False
+    })
 
 
 @app.before_request
 def before_request():
     session.permanent = True
     app.permanent_session_lifetime = timedelta(minutes=10)
+    client = pymongo.MongoClient("mongodb://localhost:27017/")
+    g.db = client["blankdao"]
+    g.w3 = Web3(HTTPProvider(config.INFURA_URL))
 
 
 @app.after_request
@@ -68,15 +69,11 @@ def teardown_request(exception):
     pass
 
 
-def allow_child(db, child):
-    mydoc = db.find_one({"child": child})
-    print(mydoc)
-    # import pdb
-    # pdb.set_trace()
-    if mydoc:
-        if mydoc['registered'] == False:
-            return mydoc
-    return False
+def check_eth_addr(address):
+    try:
+        return g.w3.toChecksumAddress(address)
+    except Exception:
+        raise ErrorToClient('Invalid Address')
 
 
 @app.route('/')
@@ -87,84 +84,54 @@ def index():
 @app.route('/check-account', methods=['POST'])
 def check_account():
     data = json.loads(request.data)
-    myclient = pymongo.MongoClient("mongodb://localhost:27017/")
-    mydb = myclient["blankdao"]
-    mycol = mydb["referrers"]
-    w3 = Web3(HTTPProvider(config.INFURA_URL))
-    res = allow_child(mycol, w3.toChecksumAddress(data['account']))
+    account = check_eth_addr(data['account'])
+    res = g.db.referrers.find_one({"account": account})
+
     if res:
-        if res['registered'] == True:
-            raise ErrorToClient('Your account has already been registered', {'referrer': res['parent']})
+        if res['registered']:
+            raise ErrorToClient('Your account has already been registered',
+                                {'referrer': res['referrer']})
     return json.dumps({'status': True, 'msg': 'Allow'})
 
 
 @app.route('/add-referrer', methods=['POST'])
 def add_referrer():
-    myclient = pymongo.MongoClient("mongodb://localhost:27017/")
-    mydb = myclient["blankdao"]
-    mycol = mydb["referrers"]
-
-    w3 = Web3(HTTPProvider(config.INFURA_URL))
     data = json.loads(request.data)
 
-    try:
-        parent = w3.toChecksumAddress(data['parent'])
-        child = w3.toChecksumAddress(data['child'])
-    except Exception as e:
-        print(e)
-        raise ErrorToClient('Your Account Addresses Not Correct')
-    res = allow_child(mycol, child)
+    referrer = check_eth_addr(data['referrer'])
+    account = check_eth_addr(data['account'])
+    res = g.db.referrers.find_one({"account": account})
     if res:
-        if res['registered'] == True:
+        if res['registered']:
             raise ErrorToClient('Your account has already been registered')
         else:
-            mycol.update_one({
-              '_id': res['_id']
-            },{
-              '$set': {
-                'parent': parent
-              }
-            }, upsert=False)
-    mycol.insert_one({"parent": parent, "child": child, "registered": False})
-    return json.dumps({'msg':'Your Address Submied Successfully', 'status': True})
-
-
-def priv2addr(private_key):
-    pk = keys.PrivateKey(bytes.fromhex(private_key))
-    return pk.public_key.to_checksum_address()
-
-
-def send_eth_call(func, sender):
-    result = func.call({
-        'from': sender,
-    })
-    return result
-
-
-def send_transaction(func, value, private_key):
-    transaction = func.buildTransaction({
-        'nonce':
-        w3.eth.getTransactionCount(priv2addr(private_key)),
-        'from':
-        priv2addr(private_key),
-        'value':
-        value,
-        'gas':
-        config.GAS,
-        'gasPrice':
-        config.GAS_PRICE
-    })
-    signed = w3.eth.account.signTransaction(transaction, private_key)
-    raw_transaction = signed.rawTransaction.hex()
-    tx_hash = w3.eth.sendRawTransaction(raw_transaction).hex()
-    rec = w3.eth.waitForTransactionReceipt(tx_hash)
-    if rec['status']:
-        print('tx: {}'.format(tx_hash))
+            g.db.referrers.update_one({
+                '_id': res['_id']
+            }, {'$set': {
+                'referrer': referrer
+            }},
+                                      upsert=False)
     else:
-        print('Reverted!\nError occured during contract execution')
-    print()
-    return tx_hash
+        g.db.referrers.insert_one({
+            "referrer": referrer,
+            "account": account,
+            "registered": False
+        })
+    return json.dumps({
+        'msg': 'Your Address Submied Successfully',
+        'status': True
+    })
 
+
+@app.route('/get-referrer', methods=['POST'])
+def get_referrer():
+    data = json.loads(request.data)
+    account = check_eth_addr(data['account'])
+    mydoc = g.db.referrers.find({"account": account})
+    if mydoc:
+        if mydoc['registered']:
+            return json.dumps({'referrer': mydoc['referrer'], 'status': True})
+    return json.dumps({'msg': 'No referrer', 'status': False})
 
 
 if __name__ == '__main__':
