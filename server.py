@@ -49,7 +49,6 @@ def gzip_content(response):
 
 @app.errorhandler(ErrorToClient)
 def error_to_client(error):
-    print(error, '***********++--------------**********')
     return json.dumps({'msg': error.args[0], 'args': error.args[1:], 'status': False})
 
 
@@ -70,14 +69,14 @@ def teardown_request(exception):
 
 
 def allow_child(db, child):
-    mydoc = db.find({ "$and": [ { "child": child }, { "rejesterd": False } ] })
-    for i in mydoc:
-        print(i)
-    print(mydoc.count(), 'count')
-    if mydoc.count() > 0:
-        print('im false')
-        return False
-    return True
+    mydoc = db.find_one({"child": child})
+    print(mydoc)
+    # import pdb
+    # pdb.set_trace()
+    if mydoc:
+        if mydoc['registered'] == False:
+            return mydoc
+    return False
 
 
 @app.route('/')
@@ -92,8 +91,9 @@ def check_account():
     mydb = myclient["blankdao"]
     mycol = mydb["referrers"]
     w3 = Web3(HTTPProvider(config.INFURA_URL))
-    if not allow_child(mycol, w3.toChecksumAddress(data['account'])):
-        raise ErrorToClient('Your account has already been registered', {'referrer': 'parent referrer'})
+    res = allow_child(mycol, w3.toChecksumAddress(data['account']))
+    if res:
+        raise ErrorToClient('Your account has already been registered', {'referrer': res['parent']})
     return json.dumps({'status': True, 'msg': 'Allow'})
 
 
@@ -109,11 +109,22 @@ def add_referrer():
     try:
         parent = w3.toChecksumAddress(data['parent'])
         child = w3.toChecksumAddress(data['child'])
-        if not allow_child(mycol, child):
-            raise ErrorToClient('Your account has already been registered')
     except Exception as e:
+        print(e)
         raise ErrorToClient('Your Account Addresses Not Correct')
-    x = mycol.insert_one({"parent": parent, "child": child, "rejesterd": False})
+    res = allow_child(mycol, child)
+    if res:
+        if res['registered'] == True:
+            raise ErrorToClient('Your account has already been registered')
+        else:
+            mycol.update_one({
+              '_id': res['_id']
+            },{
+              '$set': {
+                'parent': parent
+              }
+            }, upsert=False)
+    mycol.insert_one({"parent": parent, "child": child, "registered": False})
     return json.dumps({'msg':'Your Address Submied Successfully', 'status': True})
 
 
