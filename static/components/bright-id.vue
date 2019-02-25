@@ -91,7 +91,7 @@
             '',
             'success'
           );
-          console.log('success data', data.status);
+          router.push('/');
         },function(response){
           console.error('Error in Connection: ', response)
         });

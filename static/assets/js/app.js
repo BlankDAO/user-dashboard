@@ -129,7 +129,7 @@ Alert = (function(){
 const routes = [
   { path: '/', component: httpVueLoader('components/home.vue') },
   { path: '/referrer', component: httpVueLoader('components/referrer.vue') },
-  { path: '/bright-id', component: httpVueLoader('components/bright-id.vue') },
+  // { path: '/bright-id', component: httpVueLoader('components/bright-id.vue') },
 ]
 
 const router = new VueRouter({
