@@ -104,7 +104,10 @@
       init() {
         this.currentStep = 0;
         this.assignId();
-        $("#myModal").modal();
+        $('#myModal').modal({
+            backdrop: 'static',
+            keyboard: false
+        });
       },
       assignId() {
         for ( var i in this.steps ) {
