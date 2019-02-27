@@ -1,35 +1,35 @@
-jQuery(function ($) {
+// jQuery(function ($) {
 
-    $(".sidebar-dropdown > a").click(function() {
-  $(".sidebar-submenu").slideUp(200);
-  if (
-    $(this)
-      .parent()
-      .hasClass("active")
-  ) {
-    $(".sidebar-dropdown").removeClass("active");
-    $(this)
-      .parent()
-      .removeClass("active");
-  } else {
-    $(".sidebar-dropdown").removeClass("active");
-    $(this)
-      .next(".sidebar-submenu")
-      .slideDown(200);
-    $(this)
-      .parent()
-      .addClass("active");
-  }
-});
+//     $(".sidebar-dropdown > a").click(function() {
+//   $(".sidebar-submenu").slideUp(200);
+//   if (
+//     $(this)
+//       .parent()
+//       .hasClass("active")
+//   ) {
+//     $(".sidebar-dropdown").removeClass("active");
+//     $(this)
+//       .parent()
+//       .removeClass("active");
+//   } else {
+//     $(".sidebar-dropdown").removeClass("active");
+//     $(this)
+//       .next(".sidebar-submenu")
+//       .slideDown(200);
+//     $(this)
+//       .parent()
+//       .addClass("active");
+//   }
+// });
 
-  $("#close-sidebar").click(function() {
-    $(".page-wrapper").removeClass("toggled");
-  });
-  $("#show-sidebar").click(function() {
-    $(".page-wrapper").addClass("toggled");
-  });
+//   $("#close-sidebar").click(function() {
+//     $(".page-wrapper").removeClass("toggled");
+//   });
+//   $("#show-sidebar").click(function() {
+//     $(".page-wrapper").addClass("toggled");
+//   });
 
-});
+// });
 
 
 metaMaskInit = function () {
@@ -85,45 +85,7 @@ metaMaskInit = function () {
 
 
 
-Alert = (function(){
-  var self = {};
 
-  self.loaderObj = null;
-
-  self.Loader = function() {
-    self.loaderObj = swal({
-      title: 'Please Wait',
-      imageUrl: 'https://cdn.dribbble.com/users/23375/screenshots/1315230/firedribbble.gif',
-      imageAlt: 'Loader',
-      backdrop: `
-        rgba(23, 24, 33, 0.81)
-      `,
-      timer: 6000,
-      allowOutsideClick: false,
-      showConfirmButton: false,
-    }).catch(swal.noop)
-  }
-
-  self.StopLoader = function() {
-    swal({
-      timer: 0.1,
-      showConfirmButton: false,
-      allowOutsideClick: false,
-    }).catch(swal.noop);
-  }
-
-
-  self.Info = function (msg) {
-    swal({
-      title: '<strong>Info</strong>',
-      type: 'info',
-      html: '<pre>' + msg + '</pre>',
-    }).catch(swal.noop);
-  }
-
-
-  return self;
-})();
 
 
 const routes = [
@@ -139,34 +101,11 @@ const router = new VueRouter({
 const app = new Vue({
   router,
   data: {
-    userInfo: {
-      isLogin: false,
-      fullName: 'Guest',
-      userType: 'Guest',
-      roles: [],
-    },
+
   },
   methods: {
 
-    checkLoginStatus(neededRoles=[]) {
-      if ( !this.userInfo.isLogin ) {
-        this.userInfo.isLogin = false;
-        this.userInfo.userType = null;
-        this.userInfo.roles = [];
-        this.userInfo.fullName = 'Guest';
-        toastr.error('Your are not login.', 'Error', {timeOut: 5000, closeButton: true})
-        router.push('/');
-        return;
-      }
-      if ( neededRoles ) {
-        for (role in neededRoles) {
-          if ( this.userInfo.roles.indexOf(neededRoles[role]) != -1 ) {
-            return true;
-          }
-        }
-        return false;
-      }
-    },
+
 
     // isSignIn(callBack) {
     //   this.$http.get('/user/issignin').then(function(response){
@@ -176,25 +115,6 @@ const app = new Vue({
     //   })
     // },
 
-    goToDashboard(userType) {
-      switch ( userType ) {
-        case 'super admin':
-          router.push('/admin/dashboard');
-          break;
-        case 'admin':
-          router.push('/admin/dashboard');
-          break;
-        case 'employee':
-          router.push('/payment');
-          break;
-          case 'Guest':
-            router.push('/login');
-            break;
-        default:
-        router.push('/login');
-
-      }
-    },
 
     // singout() {
     //   this.$http.get('/user/signout').then(function(response){

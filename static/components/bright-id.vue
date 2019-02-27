@@ -1,4 +1,4 @@
-<template lang="html">
+<template type="text/x-template">
 <div class="container">
   <div class="row justify-content-center">
       <div class="col col-12">

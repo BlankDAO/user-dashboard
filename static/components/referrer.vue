@@ -1,4 +1,4 @@
-<template lang="html">
+<template type="text/x-template">
     <div class="row justify-content-center referrer">
       <div class="col col-12">
         <h2>Referrers</h2>
@@ -24,7 +24,11 @@
             </div>
         </div>
       </div>
+      <div v-if="loader">
+        <st-pr v-bind:datas="loader"></st-pr>
+      </div>
     </div>
+
 
 </template>
 
@@ -90,15 +94,18 @@ h4 {
         msg: '',
         reff: null,
         myCounter: 0,
+        loader: null,
       }
     },
     props: [
-      "hash",
-      "reff"
+      "hashIn",
+      "reffIn"
     ],
+    components: {
+      'st-pr': httpVueLoader('components/step-progress.vue')
+    },
     methods: {
       checkParent(cb) {
-        console.log('....', web3.isAddress(this.reff), this.reff)
         if ( !web3.isAddress(this.reff) ) {
           Swal.fire({
             type: 'error',
@@ -116,7 +123,6 @@ h4 {
             console.error(error);
             return false;
           }
-          console.log(result, '2020202');
           if ( !result ){
             Swal.fire({
               type: 'error',
@@ -152,12 +158,26 @@ h4 {
           });
           return;
         }
+        this.loader = [
+          {
+            type: 'metamask',
+            text: 'Confirm transfering 0.003 ETH for submiting your referrer',
+          },
+          {
+            type: 'trx',
+            text: 'Waiting for confirmation',
+          },
+          {
+            type: 'trx',
+            text: 'Saving your referrer',
+          },
+        ];
         let reff = this.reff;
         $(".save-reff").prop('disabled', true);
         let send = web3.eth.sendTransaction({
           from: web3.eth.defaultAccount,
           to: '0x9ed6d9086f5ee9edc14Dd2caCa44D65ee8caBDdE',
-          value: web3.toWei(0.002, "ether")}, function(error, result) {
+          value: web3.toWei(0.003, "ether")}, function(error, result) {
             if (error) {
               Swal.fire({
                 type: 'error',
@@ -170,11 +190,10 @@ h4 {
               return;
             }
             app.$root.$emit('checkTX', result, reff);
+            app.$root.$emit('nextStep');
           });
-        console.log('send', send);
       },
       checkTX(hash, reff) {
-        console.log(hash, reff, '-+*-+-*-+-*')
         web3.eth.getTransactionReceipt(hash, function(error, result) {
           if (error) {
             $(".save-reff").prop('disabled', false);
@@ -193,17 +212,13 @@ h4 {
             }, 2000);
             return;
           }
-          console.log(result.transactionHash);
-          let data = {hash: result.transactionHash, child: web3.eth.accounts[0], parent: reff};
+          app.$root.$emit('nextStep');
+          let data = {hash: result.transactionHash, account: web3.eth.accounts[0], referrer: reff};
           app.$http.post('/add-referrer', data).then(function(response){
-            console.log(response);
             let data = response.data;
             if ( data.status ) {
-              Swal.fire(
-                'Done Successfully',
-                'Please Check Your Account',
-                'success'
-              )
+              app.$root.$emit('nextStep');
+              app.$root.$emit('nextStep');
               return;
             }
             Swal.fire({
@@ -223,8 +238,8 @@ h4 {
     mounted(){
       this.defaultAccount = web3.eth.accounts[0];
       this.checkAccountStatus();
-      this.$root.$on('checkTX', (hash, reff) => {
-          this.checkTX(hash, reff);
+      this.$root.$on('checkTX', (hashIn, reffIn) => {
+          this.checkTX(hashIn, reffIn);
       })
     }
   }

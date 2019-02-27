@@ -8,7 +8,8 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <!-- Bootstrap core CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet">
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.17/vue.min.js"></script>
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.17/vue.min.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.7/dist/vue.js"></script>
     <script src="https://unpkg.com/vue-router"></script>
     <script src="https://unpkg.com/vue-resource"></script>
     <script src="https://unpkg.com/http-vue-loader"></script>
@@ -58,14 +59,14 @@
               <!-- <span class="badge badge-pill badge-warning">New</span> -->
             </a>
           </li>
-          <li class="">
+          <li hidden>
             <a href="#">
               <i class="fa fa-shopping-cart"></i>
               <span>Rewards</span>
               <!-- <span class="badge badge-pill badge-danger">3</span> -->
             </a>
           </li>
-          <li class="">
+          <li hidden>
             <a href="#/bright-id">
               <i class="fa fa-shopping-cart"></i>
               <span>BrightID</span>
@@ -134,14 +135,12 @@
     </div>
   </nav>
   <!-- sidebar-wrapper  -->
-  <main class="page-content">
+  <div class="page-content">
     <div class="container-fluid">
       <router-view></router-view>
-
-
     </div>
 
-  </main>
+  </div>
   <!-- page-content" -->
 </div>
 

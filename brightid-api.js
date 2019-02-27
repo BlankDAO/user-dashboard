@@ -129,7 +129,7 @@ function getResponse(channel, aesKey){
           // TODO: send data to main server
       }
       else {
-          resolve(JSON.stringify({status: false, msg: 'your bright id not verified'}));
+          resolve(JSON.stringify({status: false, msg: 'Your bright id not verified'}));
       }
     });
   });

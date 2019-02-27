@@ -537,98 +537,7 @@ select {
   transition: 0.35s ease-in-out;
   transition: all 0.35s ease-in-out;
 }
-.referrer input:focus {
-  /*outline: 0;*/
-  /*border-color: #0000;*/
-}
-.referrer input:focus + .input-icon i {
-}
-.referrer input:focus + .input-icon:after {
-  /*border-right-color: #777777;*/
-}
 
-.referrer input[type="checkbox"] + label:after {
-  position: absolute;
-  top: 0.45em;
-  left: 0.2em;
-  font-size: 0.8em;
-  color: #fff;
-  opacity: 0;
-  font-family: FontAwesome;
-  content: "\f00c";
-}
-.referrer input:checked + label:after {
-  opacity: 1;
-}
-.referrer select {
-  height: 3.4em;
-  line-height: 2;
-}
-.referrer select:first-of-type {
-  border-top-left-radius: 3px;
-  border-bottom-left-radius: 3px;
-}
-.referrer select:last-of-type {
-  border-top-right-radius: 3px;
-  border-bottom-right-radius: 3px;
-}
-.referrer select:focus,
-select:active {
-  outline: 0;
-}
-.referrer select option {
-  background-color: #7ed321;
-  color: #fff;
-}
-.referrer .input-group {
-  margin-bottom: 1em;
-  zoom: 1;
-}
-.referrer .input-group:before,
-.input-group:after {
-  content: "";
-  display: table;
-}
-.referrer .input-group:after {
-  clear: both;
-}
-.referrer .input-group-icon {
-  position: relative;
-}
-.referrer .input-group-icon input {
-  /*padding-left: 4.4em;*/
-}
-.referrer .input-group-icon .input-icon {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 3.4em;
-  height: 3.4em;
-  line-height: 3.4em;
-  text-align: center;
-  pointer-events: none;
-}
-.referrer .input-group-icon .input-icon:after {
-  position: absolute;
-  top: 0.6em;
-  bottom: 0.6em;
-  left: 3.4em;
-  display: block;
-  border-right: 1px solid #e5e5e5;
-  content: "";
-  -webkit-transition: 0.35s ease-in-out;
-  -moz-transition: 0.35s ease-in-out;
-  -o-transition: 0.35s ease-in-out;
-  transition: 0.35s ease-in-out;
-  transition: all 0.35s ease-in-out;
-}
-.referrer .input-group-icon .input-icon i {
-  -webkit-transition: 0.35s ease-in-out;
-  -moz-transition: 0.35s ease-in-out;
-  -o-transition: 0.35s ease-in-out;
-  transition: 0.35s ease-in-out;
-  transition: all 0.35s ease-in-out;
-}
 .referrer .container {
   /*max-width: 38em;*/
   padding: 1em 3em 2em 3em;
@@ -641,33 +550,7 @@ select:active {
   float: left;
   margin-top: 5px;
 }
-.referrer .row {
-  zoom: 1;
-}
-.referrer .row:before,
-.row:after {
-  content: "";
-  display: table;
-}
-.referrer .row:after {
-  clear: both;
-}
-.referrer .col-half {
-  padding-right: 10px;
-  float: left;
-  width: 50%;
-}
-.referrer .col-half:last-of-type {
-  padding-right: 0;
-}
-.referrer .col-third {
-  padding-right: 10px;
-  float: left;
-  width: 33.33333333%;
-}
-.referrer .col-third:last-of-type {
-  padding-right: 0;
-}
+
 @media only screen and (max-width: 540px) {
   .referrer .col-half {
     width: 100%;
