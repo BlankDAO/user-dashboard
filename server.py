@@ -108,13 +108,15 @@ def add_referrer():
             g.db.referrers.update_one({
                 '_id': res['_id']
             }, {'$set': {
-                'referrer': referrer
+                'referrer': referrer,
+                'hash': data['hash'],
             }},
                                       upsert=False)
     else:
         g.db.referrers.insert_one({
             "referrer": referrer,
             "account": account,
+            "hash": data["hash"],
             "registered": False
         })
     return json.dumps({

@@ -136,13 +136,11 @@ h4 {
       },
       checkAccountStatus() {
         this.$http.post('/check-account', { account: web3.eth.accounts[0] }).then(function(response){
-          console.log(response);
           let data = response.body;
           if ( !data.status ) {
             this.msg = data.msg + ' Your Referrer is: ' + data.args[0].referrer;
             return;
           }
-          console.log('here 22222');
           this.allowToSubmit = true;
         },function(response){
           toastr.error('Error in Connection - ' + response.data.msg, 'Error', {timeOut: 5000, closeButton: true})
@@ -227,7 +225,6 @@ h4 {
               text: '',
               footer: ''
             });
-            console.log(data.msg);
             this.allowToSubmit = false;
           },function(response){
             console.error('Error in Connection - ' + response.data.msg, 'Error')

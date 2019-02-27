@@ -113,7 +113,6 @@
         }
       },
       nextStep() {
-        console.log(this.currentStep, '***')
         if ( this.currentStep >= this.steps.length ) {
           Swal.fire(
             'Done Successfully',
