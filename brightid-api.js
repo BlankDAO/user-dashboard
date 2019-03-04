@@ -6,9 +6,10 @@ const crypto = require("crypto");
 const fetch = require("node-fetch");
 const B64 = require('base64-js');
 var Promise = require('promise');
+const axios = require('axios');
 
 var ipAddress           =     "68.183.76.106";
-var serverIp            =     "x.x.x.x:xxxx"; //Set it after launch
+var serverIp            =     "*"; //Set it after launch
 var blankDaoPublicKey   =     "117f893e-9184-427a-892c-6993e88981f0";
 
 
@@ -125,7 +126,26 @@ function getResponse(channel, aesKey){
       });
 
       if (nacl.sign.detached.verify(message, b64ToUint8Array(sig), b64ToUint8Array(publicKey2))) {
-          resolve(JSON.stringify({status: true, msg: 'verified'}));
+          resolve(JSON.stringify({status: true, msg: 'verified', data: decryptedObj}));
+          // return;
+          // let timestamp = new Date().getTime();
+          // let api_key = "UseStrongPasswordLikeThis-'UfV4%$mp9ctn-+nE8h=k7eUhLZ@EKVd_.'";
+          // api_key = String(timestamp) +  ' - ' + api_key;
+          // api_key = crypto.createHash('sha256').update(api_key, 'utf8').digest('hex');
+          // data.api_key = api_key;
+          // data.timestamp = timestamp;
+          // axios.post('http://127.0.0.1:5008/submit-brightid', data)
+          // .then((res) => {
+          //   console.log(`statusCode: ${res.status}`)
+          //   if ( res.data.status ) {
+          //     resolve(JSON.stringify({status: true, msg: 'verified', loginCode: res.data.login_code}));
+          //   }
+          //   console.log(res)
+          // })
+          // .catch((error) => {
+          //   console.error(error)
+          // })
+          // decryptedObj
           // TODO: send data to main server
       }
       else {

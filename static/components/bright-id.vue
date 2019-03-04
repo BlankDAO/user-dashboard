@@ -1,6 +1,12 @@
 <template type="text/x-template">
 <div class="container">
   <div class="row justify-content-center">
+      <div class="input-group input-group-icon col col-12">
+        <div class="input-group-prepend">
+          <span class="input-group-text modal-input-txt">Your Ethereum is</span>
+        </div>
+        <input type="text" v-bind:value="defaultAccount" disabled class="form-control default-account" placeholder="Your Ethereum Address">
+      </div>
       <div class="col col-12">
         <p class="title-head">Please scan this code in your brightID</p>
       </div>
@@ -15,6 +21,7 @@
   font-family: proxima-regular;
   font-size: 2em;
   text-align: center;
+  margin-top: 3%;
 }
 .container {
   padding: 1em 3em 2em 3em;
@@ -22,6 +29,21 @@
   background-color: #fff;
   border-radius: 4.2px;
   box-shadow: 0px 3px 10px 2px rgba(0, 0, 0, 0.2);
+}
+.modal-input-txt {
+  background-color: #000;
+  color: #ffffff;
+  font-family: proxima-regular;
+  font-size: 1.3em;
+}
+.default-account {
+  font-family: proxima-regular;
+  font-size: 1.4em;
+  height: auto;
+  background-color: #fff;
+}
+.default-account:disabled {
+  background-color: #fff;
 }
 </style>
 
@@ -32,6 +54,7 @@
         confrim: false,
         server: 'http://127.0.0.1:3000',
         msg: '',
+        defaultAccount: '',
         qrcode: null,
         cronjob: null,
       }
@@ -40,6 +63,19 @@
     ],
     methods: {
       init() {
+        try {
+          this.defaultAccount = web3.eth.defaultAccount
+        }
+        catch( e ) {
+          Swal.fire({
+            type: 'error',
+            title: 'Error in Connecting to MetaMask',
+            text: 'Details: ' + e.message,
+            footer: ''
+          });
+          router.push('/');
+          return;
+        }
         this.qrcode = new QRCode("qr", {
             text: "Nothing",
             width: 255,
@@ -56,7 +92,6 @@
       },
       newCode() {
         this.$http.get(this.server + '/new-code').then(function(response){
-          console.log(response);
           let data = response.body;
           if ( !data.status ) {
             this.msg = data.msg + ' Your Referrer is: ' + data.args[0].referrer;
@@ -70,6 +105,30 @@
           console.error('Error in Connection: ', response)
         })
       },
+      saveMember(data) {
+        data.account = this.defaultAccount;
+        this.$http.post('/submit-member', data).then(function(response){
+          let data = response.data;
+          if ( !data.status ) {
+            Swal.fire({
+              type: 'error',
+              title: 'Error on saving data',
+              text: 'Details: ' + data.msg,
+              footer: ''
+            });
+            return;
+          }
+          Swal.fire(
+            'Done Successfully',
+            '',
+            'success'
+          );
+          router.push('/');
+        },function(response){
+          console.error('Error in Connection: ', response)
+        });
+
+      },
       codeStatus(uuid, ae) {
         let data = {
           uuid: uuid,
@@ -78,7 +137,7 @@
         let myApp = this;
         this.$http.post(this.server + '/check-code', data).then(function(response){
           let data = response.body;
-          console.log('status', data.status);
+          console.log('DATA', data);
           if ( !data.status ) {
             setTimeout(function(){
               myApp.codeStatus(uuid, ae);
@@ -86,12 +145,7 @@
             return;
           }
           clearInterval(this.cronjob);
-          Swal.fire(
-            'Done Successfully',
-            '',
-            'success'
-          );
-          router.push('/');
+          this.saveMember(data.data);
         },function(response){
           console.error('Error in Connection: ', response)
         });

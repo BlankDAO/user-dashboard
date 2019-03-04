@@ -2,11 +2,16 @@
 # -*- coding: utf-8 -*-
 from flask import Flask, redirect, request, g, session
 from web3 import Web3, HTTPProvider
-from io import BytesIO as IO
 from datetime import timedelta
+from io import BytesIO as IO
+from time import time as now
+from config import api_key
+from hashlib import sha256
 import pymongo
 import config
+import uuid
 import gzip
+from pprint import pprint as pp
 import json
 import os
 
@@ -16,6 +21,13 @@ app.secret_key = os.urandom(24)
 abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
 os.chdir(dname)
+
+def check_api_key(_api_key, timestamp):
+    key = str(timestamp) +  ' - ' + api_key
+    print(sha256(key.encode('utf-8')).hexdigest())
+    if sha256(key.encode('utf-8')).hexdigest() == _api_key:
+        return True
+    return False
 
 
 class ErrorToClient(Exception):
@@ -79,6 +91,41 @@ def check_eth_addr(address):
 @app.route('/')
 def index():
     return redirect('/static/index.html')
+
+
+@app.route('/get-info', methods=['POST'])
+def get_info():
+    data = json.loads(request.data)
+    account = check_eth_addr(data['account'])
+    res = g.db.member.find_one({"account": account})
+    print(type(res))
+    if res:
+        del res['_id']
+        pp(res)
+        return json.dumps({'status': True, "data": res, "brightid_confirm": True})
+
+    return json.dumps({
+        'status': True,
+        "data": {
+            "brightid_confirm": False
+        }
+    })
+
+
+@app.route('/submit-member', methods=['POST'])
+def submit_member():
+    data = json.loads(request.data)
+
+    data['points'] = 33
+    data['credit'] = 44
+    data['earned'] = 10
+    data['brightid_score'] = 80
+    data['account'] = check_eth_addr(data['account'])
+    g.db.member.insert_one(data)
+
+    return json.dumps({
+        'status': True,
+    })
 
 
 @app.route('/check-account', methods=['POST'])
@@ -149,7 +196,6 @@ def get_referred_investors():
         'referred-investors': referred_investors,
         'status': True
     })
-
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0' , port=5008, threaded=True)

@@ -1,35 +1,35 @@
-// jQuery(function ($) {
+jQuery(function ($) {
 
-//     $(".sidebar-dropdown > a").click(function() {
-//   $(".sidebar-submenu").slideUp(200);
-//   if (
-//     $(this)
-//       .parent()
-//       .hasClass("active")
-//   ) {
-//     $(".sidebar-dropdown").removeClass("active");
-//     $(this)
-//       .parent()
-//       .removeClass("active");
-//   } else {
-//     $(".sidebar-dropdown").removeClass("active");
-//     $(this)
-//       .next(".sidebar-submenu")
-//       .slideDown(200);
-//     $(this)
-//       .parent()
-//       .addClass("active");
-//   }
-// });
+    $(".sidebar-dropdown > a").click(function() {
+  $(".sidebar-submenu").slideUp(200);
+  if (
+    $(this)
+      .parent()
+      .hasClass("active")
+  ) {
+    $(".sidebar-dropdown").removeClass("active");
+    $(this)
+      .parent()
+      .removeClass("active");
+  } else {
+    $(".sidebar-dropdown").removeClass("active");
+    $(this)
+      .next(".sidebar-submenu")
+      .slideDown(200);
+    $(this)
+      .parent()
+      .addClass("active");
+  }
+});
 
-//   $("#close-sidebar").click(function() {
-//     $(".page-wrapper").removeClass("toggled");
-//   });
-//   $("#show-sidebar").click(function() {
-//     $(".page-wrapper").addClass("toggled");
-//   });
+  $("#close-sidebar").click(function() {
+    $(".page-wrapper").removeClass("toggled");
+  });
+  $("#show-sidebar").click(function() {
+    $(".page-wrapper").addClass("toggled");
+  });
 
-// });
+});
 
 
 metaMaskInit = function () {
@@ -91,7 +91,7 @@ metaMaskInit = function () {
 const routes = [
   { path: '/', component: httpVueLoader('components/home.vue') },
   { path: '/referrer', component: httpVueLoader('components/referrer.vue') },
-  // { path: '/bright-id', component: httpVueLoader('components/bright-id.vue') },
+  { path: '/bright-id', component: httpVueLoader('components/bright-id.vue') },
 ]
 
 const router = new VueRouter({
@@ -100,37 +100,72 @@ const router = new VueRouter({
 
 const app = new Vue({
   router,
-  data: {
-
+  data: function(){
+    return {
+      accountInfo: null,
+      defaultAccount: null,
+    }
   },
   methods: {
-
-
-
-    // isSignIn(callBack) {
-    //   this.$http.get('/user/issignin').then(function(response){
-    //     this.userInfo = response.data;
-    //   },function(response){
-    //     toastr.error('Error in Connection - ' + response.data.msg, 'Error', {timeOut: 5000, closeButton: true})
-    //   })
-    // },
-
-
-    // singout() {
-    //   this.$http.get('/user/signout').then(function(response){
-    //     this.userInfo = response.data;
-    //     router.push('/');
-    //   },function(response){
-    //     toastr.error('Error in Connection - ' + response.data.msg, 'Error', {timeOut: 5000, closeButton: true})
-    //   })
-    // }
-
+    getInfo(callback) {
+      try {
+        this.defaultAccount = web3.eth.defaultAccount;
+      }
+      catch( e ) {
+        Swal.fire({
+          type: 'error',
+          title: 'Error in Connecting to MetaMask',
+          text: 'Details: ' + e.message,
+          footer: ''
+        });
+        return;
+      }
+      this.$http.post('/get-info', {'account': this.defaultAccount}).then(function(response) {
+        if( response.data.status ) {
+          console.log(response.data, '+-*')
+          this.accountInfo = response.data;
+          if ( callback ) callback();
+          return;
+        }
+        Swal.fire({
+          type: 'error',
+          title: response.data.msg,
+          text: '',
+          footer: ''
+        });
+      },function(response){
+        Swal.fire({
+          type: 'error',
+          title: 'Error in Connection',
+          text: '',
+          footer: ''
+        });
+      })
+    },
+    redircetUrl() {
+      // return;
+      console.log(this.accountInfo, '***');
+      if ( this.accountInfo.brightid_confirm ) {
+        // TODO: check if path is not home, then change it
+        router.push('/');
+      }
+      else {
+        Swal.fire({
+          type: 'info',
+          title: 'Please approve your Ethereum address with your Brightid',
+          text: 'If this is not your address, please change your Metamask account and refresh this page',
+          footer: ''
+        });
+        router.push('/bright-id');
+      }
+    },
   },
   computed: {
 
   },
   mounted() {
     metaMaskInit();
+    this.getInfo(this.redircetUrl);
   },
 }).$mount('#app')
 
