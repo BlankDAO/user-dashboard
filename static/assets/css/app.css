@@ -28,7 +28,9 @@
 .navbar-dark .nav-link a {
   color: #ffff;
 }
-
+hr {
+  width: 100%;
+}
 
 
 
