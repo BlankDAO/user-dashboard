@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from flask import Flask, redirect, request, g, session, Response, redirect
+from flask import Flask, redirect, request, g, session, Response
 from web3 import Web3, HTTPProvider
 from datetime import timedelta
 from io import BytesIO as IO
@@ -96,23 +96,36 @@ def get_info():
                 'brightid_confirm': False
             }
         })
-    del res['_id']
+    res['instagram_auth'] = True if 'instagram' in res else False
+    res['twitter_auth'] = True if 'twitter' in res else False
+    for key in [
+            '_id', 'publicKey', 'signedMessage', 'timestamp', 'instagram',
+            'twitter'
+    ]:
+        del res[key]
     return json.dumps({'status': True, 'data': res, 'brightid_confirm': True})
 
 
 @app.route('/submit-member', methods=['POST'])
 def submit_member():
     data = json.loads(request.data)
+    from pprint import pprint as pp
+    pp(data)
+    print(verify_message(data['publicKey'], data['timestamp'],
+                         data['signedMessage']))
     if not verify_message(data['publicKey'], data['timestamp'],
                           data['signedMessage']):
-        return json.dumps({'status': False, 'message': 'Invalid data'})
+        return json.dumps({'status': False, 'msg': 'Invalid data'})
+    print('*******\n', data)
     data['points'] = 0
     data['credit'] = 0
     data['earned'] = 0
+    data['instagram'] = None
+    data['twitter'] = None
     data['brightid_score'] = brightid_score()
     data['account'] = check_eth_addr(data['account'])
-    if not g.db.member.find_one(data['account']):
-        return json.dumps({'status': False, 'message': 'Already exists'})
+    if g.db.member.find_one(data['account']):
+        return json.dumps({'status': False, 'msg': 'Already exists'})
     g.db.member.insert_one(data)
     return json.dumps({
         'status': True,
@@ -211,18 +224,21 @@ def auth():
 
 
 def brightid_score():
-    # TODO get scro from BrightID API
-    return 0
+    # TODO get scro from BrightID API ASAP
+    return '__'
 
 
-def verify_message(public_key, message, sig):
+def verify_message(public_key, timestamp, sig):
+    message = bytearray(
+        public_key + config.BLANKDAO_PUBLIC_KEY + str(timestamp), 'utf8')
+
     try:
         verify_key = nacl.signing.VerifyKey(
             public_key, encoder=nacl.encoding.URLSafeBase64Encoder)
         encoder = nacl.encoding.URLSafeBase64Encoder
         verify_key.verify(message, encoder.decode(sig))
         return True
-    except:
+    except Exception:
         return False
 
 
