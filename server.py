@@ -197,5 +197,28 @@ def get_referred_investors():
         'status': True
     })
 
+
+client = {
+    'client_id'      : '',
+    'client_secret'  : '',
+    'grant_type'     : 'authorization_code',
+    'redirect_uri'   : 'http://104.207.144.107:8000/instagram-auth',
+    'auth_uri'       : 'https://api.instagram.com/oauth/authorize/',
+    'token_uri'      : 'https://api.instagram.com/oauth/access_token/'
+}
+
+@app.route('/instagram-login')
+def instagram_login():
+    uri = client['auth_uri'] + '?client_id={0}&redirect_uri={1}&response_type=code'.format(client['client_id'], client['redirect_uri'])
+    return flask.redirect(uri)
+
+@app.route('/instagram-auth')
+def auth():
+    client.update({'code': flask.request.args.get('code')})
+    return flask.Response(requests.post(client['token_uri'], data=client).text, status=200, mimetype='application/json')
+    # resualt is:
+        # {"access_token": "6253355905.0cfde61.4099f3d082a74dabac30271d5e66c840", "user": {"id": "6253355905", "username": "hamidreza.zarepour", "profile_picture": "https://scontent.cdninstagram.com/vp/d5e9b26ffb35bca808a045fab87b55d3/5D24FE78/t51.2885-19/s150x150/45880528_202374717369019_3973935739212660736_n.jpg?_nc_ht=scontent.cdninstagram.com", "full_name": "Hamid reza zare pour", "bio": "Computer programmer.music lover", "website": "http://hrzp.lsbits.com/", "is_business": false}}
+
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0' , port=5008, threaded=True)
