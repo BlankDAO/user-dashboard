@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from flask import Flask, redirect, request, g, session
+from flask import Flask, redirect, request, g, session, Response, redirect
 from web3 import Web3, HTTPProvider
 from datetime import timedelta
 from io import BytesIO as IO
-from config import api_key
-from hashlib import sha256
 import nacl.encoding
 import nacl.signing
+import requests
 import pymongo
 import config
 import gzip
@@ -20,14 +19,6 @@ app.secret_key = os.urandom(24)
 abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
 os.chdir(dname)
-
-
-def check_api_key(_api_key, timestamp):
-    key = str(timestamp) + ' - ' + api_key
-    print(sha256(key.encode('utf-8')).hexdigest())
-    if sha256(key.encode('utf-8')).hexdigest() == _api_key:
-        return True
-    return False
 
 
 class ErrorToClient(Exception):
@@ -98,35 +89,30 @@ def get_info():
     data = json.loads(request.data)
     account = check_eth_addr(data['account'])
     res = g.db.member.find_one({'account': account})
-    print(type(res))
-    if res:
-        del res['_id']
+    if not res:
         return json.dumps({
             'status': True,
-            'data': res,
-            'brightid_confirm': True
+            'data': {
+                'brightid_confirm': False
+            }
         })
-    return json.dumps({'status': True, 'data': {'brightid_confirm': False}})
+    del res['_id']
+    return json.dumps({'status': True, 'data': res, 'brightid_confirm': True})
 
 
 @app.route('/submit-member', methods=['POST'])
 def submit_member():
     data = json.loads(request.data)
-    if not verify_message(data['publicKey'], data['timestamp'], data['signedMessage']):
-        return json.dumps({
-            'status': False,
-            'message': 'Invalid data'
-        })
+    if not verify_message(data['publicKey'], data['timestamp'],
+                          data['signedMessage']):
+        return json.dumps({'status': False, 'message': 'Invalid data'})
     data['points'] = 0
     data['credit'] = 0
     data['earned'] = 0
     data['brightid_score'] = brightid_score()
     data['account'] = check_eth_addr(data['account'])
     if not g.db.member.find_one(data['account']):
-        return json.dumps({
-            'status': False,
-            'message': 'Already exists'
-        })
+        return json.dumps({'status': False, 'message': 'Already exists'})
     g.db.member.insert_one(data)
     return json.dumps({
         'status': True,
@@ -138,7 +124,6 @@ def check_account():
     data = json.loads(request.data)
     account = check_eth_addr(data['account'])
     res = g.db.referrers.find_one({'account': account})
-
     if res:
         if res['registered']:
             raise ErrorToClient('Your account has already been registered',
@@ -203,29 +188,22 @@ def get_referred_investors():
     })
 
 
-client = {
-    'client_id': '',
-    'client_secret': '',
-    'grant_type': 'authorization_code',
-    'redirect_uri': 'http://104.207.144.107:8000/instagram-auth',
-    'auth_uri': 'https://api.instagram.com/oauth/authorize/',
-    'token_uri': 'https://api.instagram.com/oauth/access_token/'
-}
-
-
 @app.route('/instagram-login')
 def instagram_login():
-    uri = client[
+    uri = config.INSTAGRAM_CLIENT[
         'auth_uri'] + '?client_id={0}&redirect_uri={1}&response_type=code'.format(
-            client['client_id'], client['redirect_uri'])
-    return flask.redirect(uri)
+            config.INSTAGRAM_CLIENT['client_id'],
+            config.INSTAGRAM_CLIENT['redirect_uri'])
+    return redirect(uri)
 
 
 @app.route('/instagram-auth')
 def auth():
-    client.update({'code': flask.request.args.get('code')})
-    return flask.Response(
-        requests.post(client['token_uri'], data=client).text,
+    config.INSTAGRAM_CLIENT.update({'code': request.args.get('code')})
+    return Response(
+        requests.post(
+            config.INSTAGRAM_CLIENT['token_uri'],
+            data=config.INSTAGRAM_CLIENT).text,
         status=200,
         mimetype='application/json')
     # resualt is:
@@ -233,7 +211,7 @@ def auth():
 
 
 def brightid_score():
-    # TODO get scro from BrightID API.
+    # TODO get scro from BrightID API
     return 0
 
 
