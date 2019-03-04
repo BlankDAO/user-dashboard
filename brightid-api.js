@@ -118,35 +118,8 @@ function getResponse(channel, aesKey){
       const message = strToUint8Array(publicKey2 + blankDaoPublicKey + timestamp);
       const sig = decryptedObj.signedMessage;
 
-      console.log({
-        blankDaoPublicKey,
-        publicKey2,
-        timestamp,
-        sig
-      });
-
       if (nacl.sign.detached.verify(message, b64ToUint8Array(sig), b64ToUint8Array(publicKey2))) {
           resolve(JSON.stringify({status: true, msg: 'verified', data: decryptedObj}));
-          // return;
-          // let timestamp = new Date().getTime();
-          // let api_key = "UseStrongPasswordLikeThis-'UfV4%$mp9ctn-+nE8h=k7eUhLZ@EKVd_.'";
-          // api_key = String(timestamp) +  ' - ' + api_key;
-          // api_key = crypto.createHash('sha256').update(api_key, 'utf8').digest('hex');
-          // data.api_key = api_key;
-          // data.timestamp = timestamp;
-          // axios.post('http://127.0.0.1:5008/submit-brightid', data)
-          // .then((res) => {
-          //   console.log(`statusCode: ${res.status}`)
-          //   if ( res.data.status ) {
-          //     resolve(JSON.stringify({status: true, msg: 'verified', loginCode: res.data.login_code}));
-          //   }
-          //   console.log(res)
-          // })
-          // .catch((error) => {
-          //   console.error(error)
-          // })
-          // decryptedObj
-          // TODO: send data to main server
       }
       else {
           resolve(JSON.stringify({status: false, msg: 'Your bright id not verified'}));
