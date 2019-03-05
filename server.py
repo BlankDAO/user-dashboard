@@ -109,22 +109,16 @@ def get_info():
 @app.route('/submit-member', methods=['POST'])
 def submit_member():
     data = json.loads(request.data)
-    from pprint import pprint as pp
-    pp(data)
-    print(verify_message(data['publicKey'], data['timestamp'],
-                         data['signedMessage']))
     if not verify_message(data['publicKey'], data['timestamp'],
                           data['signedMessage']):
         return json.dumps({'status': False, 'msg': 'Invalid data'})
-    print('*******\n', data)
     data['points'] = 0
     data['credit'] = 0
     data['earned'] = 0
     data['instagram'] = None
     data['twitter'] = None
-    data['brightid_score'] = brightid_score()
     data['account'] = check_eth_addr(data['account'])
-    if g.db.member.find_one(data['account']):
+    if g.db.member.find_one(data['publicKey']):
         return json.dumps({'status': False, 'msg': 'Already exists'})
     g.db.member.insert_one(data)
     return json.dumps({
