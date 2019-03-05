@@ -63,6 +63,9 @@
     ],
     methods: {
       init() {
+        if ( this.$root.accountInfo.brightid_confirm ) {
+          router.push('/');
+        }
         try {
           this.defaultAccount = web3.eth.defaultAccount
         }

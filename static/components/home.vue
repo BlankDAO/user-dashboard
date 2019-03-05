@@ -19,7 +19,7 @@
 	      <div class="col row col-sm-12 col-md-12 col-lg-4 offset-lg-2 box">
 	      	<div class="item col col-6"><span>BrightId Score:</span></div>
 	      	<div class="col col-6 row">
-	      		<div class="value col col-6">{{$root.accountInfo.data.brightid_score}}</div>
+	      		<div class="value col col-6">{{$root.accountInfo.data.score}}</div>
 	      	</div>
 	      </div>
 	      <div class="col row col-sm-12 col-md-12 col-lg-4  box">
@@ -38,7 +38,7 @@
       <hr>
       <div class="row justify-content-center" style="margin-top: 5%;">
       	<div class="col col-sm-12 col-md-12 col-lg-3" v-if="$root.accountInfo.data.instagram_auth">
-			<a class="btn btn-block btn-social" href="https://api.instagram.com/oauth/authorize/?client_id=0cfde614d84a4292a2509af130dd9b4f&redirect_uri=http://127.0.0.5008/static/index.html#/instagram&response_type=token">
+			<a class="btn btn-block btn-social" href="https://api.instagram.com/oauth/authorize/?client_id=040b0da670724034bf1324e7236902a9&redirect_uri=http://http://104.207.144.107:8000/static/index.html#/instagram&response_type=token">
 	        	<i class="fab fa-instagram"></i> Sign in with Instagram
 	        </a>
       	</div>
@@ -146,6 +146,7 @@
     },
     mounted(){
     	this.$root.getInfo();
+    	if ( !this.$root.accountInfo.data ) return;
     }
   }
 </script>
