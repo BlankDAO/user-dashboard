@@ -1,8 +1,6 @@
 INFURA_URL = 'https://mainnet.infura.io/v3/81a17a01107e4ac9bf8a556da267ae2d'
 
-GAS = 260 * 10**3
-GAS_PRICE = 7 * 10**9
-
+BLANKDAO_PUBLIC_KEY = '117f893e-9184-427a-892c-6993e88981f0'
 
 INSTAGRAM_CLIENT = {
     'client_id': '',
