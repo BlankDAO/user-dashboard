@@ -1,6 +1,6 @@
 <template type="text/x-template">
     <div class="">
-      <div class="row justify-content-center">
+      <div class="row justify-content-center" v-if="$root.accountInfo.data">
 	      <h2 class="col col-12">Dashboard</h2>
 	      <hr>
 	      <div class="col col-12 profile">
@@ -96,6 +96,7 @@
 	filter: grayscale(100%);
 	border-radius: 100px;
 	box-shadow: 0px 0px 10px 0 #000000;
+	height: 10vmin;
 }
 .name {
 	font-size: 4vmin;
@@ -146,7 +147,7 @@
     },
     mounted(){
     	this.$root.getInfo();
-    	if ( !this.$root.accountInfo.data ) return;
+    	// if ( !this.$root.accountInfo.data ) return;
     }
   }
 </script>
