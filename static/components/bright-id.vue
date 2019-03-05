@@ -52,7 +52,7 @@
     data: function() {
       return {
         confrim: false,
-        server: 'http://127.0.0.1:3000',
+        server: 'http://104.207.144.107:3000',
         msg: '',
         defaultAccount: '',
         qrcode: null,
@@ -63,6 +63,9 @@
     ],
     methods: {
       init() {
+        if ( this.$root.accountInfo.brightid_confirm ) {
+          router.push('/');
+        }
         try {
           this.defaultAccount = web3.eth.defaultAccount
         }
