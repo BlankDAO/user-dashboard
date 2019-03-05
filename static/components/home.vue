@@ -38,7 +38,7 @@
       <hr>
       <div class="row justify-content-center" style="margin-top: 5%;">
       	<div class="col col-sm-12 col-md-12 col-lg-3" v-if="$root.accountInfo.data.instagram_auth">
-			<a class="btn btn-block btn-social ">
+			<a class="btn btn-block btn-social" href="https://api.instagram.com/oauth/authorize/?client_id=0cfde614d84a4292a2509af130dd9b4f&redirect_uri=http://127.0.0.5008/static/index.html#/instagram&response_type=token">
 	        	<i class="fab fa-instagram"></i> Sign in with Instagram
 	        </a>
       	</div>
