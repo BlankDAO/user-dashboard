@@ -88,7 +88,7 @@ def index():
 def get_info():
     data = json.loads(request.data)
     account = check_eth_addr(data['account'])
-    res = g.db.member.find_one({'account': account})
+    res = g.db.members.find_one({'account': account})
     if not res:
         return json.dumps({
             'status': True,
@@ -98,10 +98,7 @@ def get_info():
         })
     res['instagram_auth'] = True if 'instagram' in res else False
     res['twitter_auth'] = True if 'twitter' in res else False
-    for key in [
-            '_id', 'publicKey', 'signedMessage', 'timestamp', 'instagram',
-            'twitter'
-    ]:
+    for key in ['_id', 'signedMessage', 'timestamp', 'instagram', 'twitter']:
         del res[key]
     return json.dumps({'status': True, 'data': res, 'brightid_confirm': True})
 
@@ -109,6 +106,8 @@ def get_info():
 @app.route('/submit-member', methods=['POST'])
 def submit_member():
     data = json.loads(request.data)
+    if g.db.members.find_one(data['publicKey']):
+        return json.dumps({'status': False, 'msg': 'Already exists'})
     if not verify_message(data['publicKey'], data['timestamp'],
                           data['signedMessage']):
         return json.dumps({'status': False, 'msg': 'Invalid data'})
@@ -116,11 +115,11 @@ def submit_member():
     data['credit'] = 0
     data['earned'] = 0
     data['instagram'] = None
+    data['instagram_confirmation'] = False
     data['twitter'] = None
+    data['twitter_confirmation'] = False
     data['account'] = check_eth_addr(data['account'])
-    if g.db.member.find_one(data['publicKey']):
-        return json.dumps({'status': False, 'msg': 'Already exists'})
-    g.db.member.insert_one(data)
+    g.db.members.insert_one(data)
     return json.dumps({
         'status': True,
     })
@@ -164,7 +163,7 @@ def add_referrer():
             'registered': False
         })
     return json.dumps({
-        'msg': 'Your Address Submied Successfully',
+        'msg': 'Your Address Submited Successfully',
         'status': True
     })
 
@@ -195,31 +194,35 @@ def get_referred_investors():
     })
 
 
-@app.route('/instagram-login')
-def instagram_login():
-    uri = config.INSTAGRAM_CLIENT[
-        'auth_uri'] + '?client_id={0}&redirect_uri={1}&response_type=code'.format(
-            config.INSTAGRAM_CLIENT['client_id'],
-            config.INSTAGRAM_CLIENT['redirect_uri'])
-    return redirect(uri)
-
-
-@app.route('/instagram-auth')
-def auth():
-    config.INSTAGRAM_CLIENT.update({'code': request.args.get('code')})
-    return Response(
-        requests.post(
-            config.INSTAGRAM_CLIENT['token_uri'],
-            data=config.INSTAGRAM_CLIENT).text,
-        status=200,
-        mimetype='application/json')
-    # resualt is:
-    # {'access_token': '6253355905.0cfde61.4099f3d082a74dabac30271d5e66c840', 'user': {'id': '6253355905', 'username': 'hamidreza.zarepour', 'profile_picture': 'https://scontent.cdninstagram.com/vp/d5e9b26ffb35bca808a045fab87b55d3/5D24FE78/t51.2885-19/s150x150/45880528_202374717369019_3973935739212660736_n.jpg?_nc_ht=scontent.cdninstagram.com', 'full_name': 'Hamid reza zare pour', 'bio': 'Computer programmer.music lover', 'website': 'http://hrzp.lsbits.com/', 'is_business': false}}
+@app.route('/submit-instagram')
+def submit_instagram():
+    data = json.loads(request.data)
+    public_key = data['publicKey']
+    res = g.db.members.find_one({'publicKey': public_key})
+    if not res:
+        return json.dumps({'msg': 'User Not Found', 'status': False})
+    if res['instagram_confirmation']:
+        return json.dumps({
+            'msg': 'Instagram registered before',
+            'status': False
+        })
+    g.db.members.update_one({
+        'publicKey': public_key
+    }, {'$set': {
+        'instagram': data['instagram_username']
+    }},
+                            upsert=False)
+    return json.dumps({
+        'msg':
+        'Your Instagram Username Submited Successfully. It will be confirmed in 24 hours',
+        'status':
+        True
+    })
 
 
 def brightid_score():
     # TODO get scro from BrightID API ASAP
-    return '__'
+    pass
 
 
 def verify_message(public_key, timestamp, sig):
