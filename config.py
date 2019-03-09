@@ -7,6 +7,6 @@ BLANK_TOKEN_ABI = '[{"constant": true, "inputs": [], "name": "mintingFinished", 
 BLANK_TOKEN_ADDR = '0x95A88E86a07867bB63720D8E8e785D271D06C1fc'
 
 TWIITER_API = {
-	consumer_key = 'UwT......No',
-	consumer_secret = 'dfBm8F....td'
+	'consumer_key': 'UwT......No',
+	'consumer_secret': 'dfBm8F....td'
 }
