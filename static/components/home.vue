@@ -1,6 +1,6 @@
 <template type="text/x-template">
     <div class="">
-      <div class="row justify-content-center" v-if="$root.accountInfo.data">
+      <div class="row justify-content-center">
 	      <h2 class="col col-12">Dashboard</h2>
 	      <hr>
 	      <div class="col col-12 profile">
@@ -25,19 +25,19 @@
 	      <div class="col row col-sm-12 col-md-12 col-lg-4  box">
 	      	<div class="item col col-6"><span>Credit:</span></div>
 	      	<div class="col col-6 row">
-	      		<div class="value col col-6">{{$root.accountInfo.data.credit}}$</div>
+	      		<div class="value col col-6">${{$root.accountInfo.data.credit}}</div>
 	      	</div>
 	      </div>
 	      <div class="col row col-sm-12 col-md-12 col-lg-4 offset-lg-2 box">
 	      	<div class="item col col-6"><span>Earned:</span></div>
 	      	<div class="col col-6 row">
-	      		<div class="value col col-6">{{$root.accountInfo.data.earned}}$</div>
+	      		<div class="value col col-6">${{$root.accountInfo.data.earned}}</div>
 	      	</div>
 	      </div>
       </div>
       <hr>
       <div class="row justify-content-center" style="margin-top: 5%;">
-      	<div class="col col-sm-12 col-md-12 col-lg-3" v-if="$root.accountInfo.data.instagram_auth">
+<!--       	<div class="col col-sm-12 col-md-12 col-lg-3" v-if="$root.accountInfo.data.instagram_auth">
 			<a class="btn btn-block btn-social" href="https://api.instagram.com/oauth/authorize/?client_id=040b0da670724034bf1324e7236902a9&redirect_uri=http://http://104.207.144.107:8000/static/index.html#/instagram&response_type=token">
 	        	<i class="fab fa-instagram"></i> Sign in with Instagram
 	        </a>
@@ -46,6 +46,29 @@
 			<a class="btn btn-block btn-social ">
 	        	<i class="fab fa-twitter"></i> Sign in with Twitter
 	        </a>
+      	</div> -->
+      	<div class="col col-5">
+      		<ul class="auth-items">
+      			<li class="done">
+      				<a href="#" class="auth-item">Prove Your Ether Account</a>
+      				<img src="assets/image/confirm.png" height="25" class="confirm">
+      			</li>
+      			<li :class="{ done: $root.accountInfo.data.brightid_level_riched }">
+      				<a href="#" class="auth-item">BrightID Score Grater Than 90</a>
+      				<img src="assets/image/confirm.png" height="25" class="confirm" v-if="$root.accountInfo.data.brightid_level_riched">
+      				<span class="dot" v-else></span>
+      			</li>
+      			<li :class="{ done: $root.accountInfo.data.twitte_confirmation }">
+      				<a href="#" class="auth-item">Prove Your Twitter</a>
+      				<img src="assets/image/confirm.png" height="25" class="confirm" v-if="$root.accountInfo.data.twitte_confirmation">
+      				<span class="dot" v-else></span>
+      			</li>
+      			<li :class="{ done: $root.accountInfo.data.instagram_confirmation }">
+      				<a href="#" class="auth-item">Prove Your Instagram</a>
+      				<img src="assets/image/confirm.png" height="25" class="confirm" v-if="$root.accountInfo.data.instagram_confirmation">
+      				<span class="dot" v-else></span>
+      			</li>
+      		</ul>
       	</div>
       </div>
     </div>
@@ -53,7 +76,34 @@
 </template>
 
 <style lang="css">
-
+.dot {
+	height: 25px;
+	width: 25px;
+	background-color: #bbb;
+	border-radius: 50%;
+	display: inline-block;
+	right: 30%;
+	position: absolute;
+}
+.auth-items {
+	list-style-type: none;
+}
+.auth-items .done a {
+	color: #000 !important;
+	font-size: 1.5em;
+	font-family: proxima-light;
+	margin-right: 5%;
+}
+.auth-items a {
+	color: #b9b9b9 !important;
+	font-size: 1.5em;
+	font-family: proxima-light;
+	margin-right: 5%;
+}
+.confirm {
+	right: 30%;
+	position: absolute;
+}
 .btn-social {
     color: #000 !important;
     background-color: #fff;
@@ -94,9 +144,8 @@
 .profile img {
 	-webkit-filter: grayscale(100%);
 	filter: grayscale(100%);
-	border-radius: 100px;
+	border-radius: 100%;
 	box-shadow: 0px 0px 10px 0 #000000;
-	height: 10vmin;
 }
 .name {
 	font-size: 4vmin;
@@ -147,7 +196,6 @@
     },
     mounted(){
     	this.$root.getInfo();
-    	// if ( !this.$root.accountInfo.data ) return;
     }
   }
 </script>

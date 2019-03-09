@@ -103,7 +103,10 @@ const app = new Vue({
   router,
   data: function(){
     return {
-      accountInfo: null,
+      accountInfo: {
+        data: {},
+        brightid_confirm: false,
+      },
       defaultAccount: null,
     }
   },
