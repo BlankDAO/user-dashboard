@@ -5,7 +5,7 @@ from flask import g
 
 
 def twitter_get_oauth_request_token(publicKey):
-	twitter_url = 'https://api.twitter.com/oauth'
+    twitter_url = 'https://api.twitter.com/oauth'
     request_token = OAuth1Session(client_key=config.consumer_key, client_secret=config.consumer_secret)
     url = twitter_url + '/request_token'
     data = request_token.get(url)
@@ -15,7 +15,7 @@ def twitter_get_oauth_request_token(publicKey):
     resource_owner_key = ro_key[1]
     resource_owner_secret = ro_secret[1]
     g.db.twitter_temp.update_one({
-		'publicKey': publicKey
+        'publicKey': publicKey
         }, {'$set': {
             'resource_owner_key': resource_owner_key,
             'resource_owner_secret': resource_owner_secret,
