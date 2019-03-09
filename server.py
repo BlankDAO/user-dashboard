@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from flask import Flask, redirect, request, g, session, Response
+from flask import Flask, redirect, request, g, session
 from web3 import Web3, HTTPProvider
 from datetime import timedelta
 from io import BytesIO as IO
 import nacl.encoding
 import nacl.signing
-import requests
 import pymongo
 import config
 import gzip
@@ -60,6 +59,8 @@ def before_request():
     client = pymongo.MongoClient('mongodb://localhost:27017/')
     g.db = client['blankdao']
     g.w3 = Web3(HTTPProvider(config.INFURA_URL))
+    g.blank_token_contract = g.w3.eth.contract(
+        address=config.BLANK_TOKEN_ADDR, abi=config.BLANK_TOKEN_ABI)
 
 
 @app.after_request
@@ -96,10 +97,9 @@ def get_info():
                 'brightid_confirm': False
             }
         })
-    res['instagram_auth'] = True if 'instagram' in res else False
-    res['twitter_auth'] = True if 'twitter' in res else False
     for key in ['_id', 'signedMessage', 'timestamp', 'instagram', 'twitter']:
         del res[key]
+    res['BDT_balance'] = blank_token_balance(check_eth_addr(data['account']))
     return json.dumps({'status': True, 'data': res, 'brightid_confirm': True})
 
 
@@ -118,11 +118,10 @@ def submit_member():
     data['instagram_confirmation'] = False
     data['twitter'] = None
     data['twitter_confirmation'] = False
+    data['brightid_level_reached'] = True if 90 <= data['score'] else False
     data['account'] = check_eth_addr(data['account'])
     g.db.members.insert_one(data)
-    return json.dumps({
-        'status': True,
-    })
+    return json.dumps({'status': True})
 
 
 @app.route('/check-account', methods=['POST'])
@@ -237,6 +236,13 @@ def verify_message(public_key, timestamp, sig):
         return True
     except Exception:
         return False
+
+
+def blank_token_balance(account):
+    account = check_eth_addr(account)
+    func = g.blank_token_contract.functions.balanceOf(account)
+    result = func.call({'from': account})
+    return result
 
 
 if __name__ == '__main__':
