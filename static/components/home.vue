@@ -57,7 +57,7 @@
       				<hr class="inside">
       			</li>
       			<li class="row" :class="{ done: $root.accountInfo.data.twitter_confirmation }">
-      				<a href="#" class="auth-item col col-4 offset-3">Prove Your Twitter</a>
+      				<a href="#" class="auth-item col col-4 offset-3" v-on:click="twitterLogin">Prove Your Twitter</a>
       				<img src="assets/image/confirm.png" height="25" class="confirm" v-if="$root.accountInfo.data.twitter_confirmation">
       				<span class="dot" v-else></span>
       				<hr class="inside">
@@ -196,6 +196,24 @@
     props: [
     ],
     methods: {
+    	twitterLogin() {
+    		let data = { 'publicKey': this.$root.accountInfo.data.publicKey }
+	        this.$http.post('/twitter-login', data).then(function(response){
+	          let data = response.data;
+	          if ( !data.status ) {
+	            Swal.fire({
+	              type: 'error',
+	              title: 'Error on saving data',
+	              text: 'Details: ' + data.msg,
+	              footer: ''
+	            });
+	            return;
+	          }
+	          window.location.href = data.url;
+	        },function(response){
+	          console.error('Error in Connection: ', response)
+	        });
+    	}
     },
     mounted(){
     	this.$root.getInfo();

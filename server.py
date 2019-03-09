@@ -6,6 +6,7 @@ from datetime import timedelta
 from io import BytesIO as IO
 import nacl.encoding
 import nacl.signing
+import twitter
 import pymongo
 import config
 import gzip
@@ -216,6 +217,36 @@ def submit_instagram():
         'Your Instagram Username Submited Successfully. It will be confirmed in next 24 hours',
         'status':
         True
+    })
+
+
+@app.route('/twitter-login', methods = ['POST'])
+def twitter_login():
+    data = json.loads(request.data)
+    url = twitter.twitter_get_oauth_request_token(data['publicKey'])
+    return json.dumps({
+        'url': url,
+        'msg': 'Done Successfully',
+        'status': True
+    })
+    return redirect(url)
+
+
+@app.route('/twitter-authorized')
+def twitter_authorized():
+    res = g.db.twitter_temp.find_one({'resource_owner_key': request.args.get('oauth_token')})
+    if not res:
+        raise ErrorToClient('Wrong oauth_token')
+
+    key = res['resource_owner_key']
+    secret = res['resource_owner_secret']
+    access_token_list = twitter.twitter_get_oauth_token(request.args.get('oauth_verifier'), key, secret)
+    user_data = twitter.twitter_get_access_token(access_token_list)
+    user_data['publicKey'] = res['publicKey']
+    g.db.twitter.insert_one(user_data)
+    return json.dumps({
+        'msg': 'Done Successfully',
+        'status': True
     })
 
 
