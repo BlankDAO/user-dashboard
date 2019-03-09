@@ -193,7 +193,7 @@ def get_referred_investors():
     })
 
 
-@app.route('/submit-instagram')
+@app.route('/submit-instagram', methods=['POST'])
 def submit_instagram():
     data = json.loads(request.data)
     public_key = data['publicKey']
@@ -213,7 +213,7 @@ def submit_instagram():
                             upsert=False)
     return json.dumps({
         'msg':
-        'Your Instagram Username Submited Successfully. It will be confirmed in 24 hours',
+        'Your Instagram Username Submited Successfully. It will be confirmed in next 24 hours',
         'status':
         True
     })

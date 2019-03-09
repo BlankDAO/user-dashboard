@@ -37,36 +37,36 @@
       </div>
       <hr>
       <div class="row justify-content-center" style="margin-top: 5%;">
-<!--       	<div class="col col-sm-12 col-md-12 col-lg-3" v-if="$root.accountInfo.data.instagram_auth">
-			<a class="btn btn-block btn-social" href="https://api.instagram.com/oauth/authorize/?client_id=040b0da670724034bf1324e7236902a9&redirect_uri=http://http://104.207.144.107:8000/static/index.html#/instagram&response_type=token">
-	        	<i class="fab fa-instagram"></i> Sign in with Instagram
-	        </a>
-      	</div>
-      	<div class="col col-sm-12 col-md-12 col-lg-3" v-if="$root.accountInfo.data.twitter_auth">
-			<a class="btn btn-block btn-social ">
-	        	<i class="fab fa-twitter"></i> Sign in with Twitter
-	        </a>
-      	</div> -->
-      	<div class="col col-5">
+      	<div class="col col-12">
       		<ul class="auth-items">
-      			<li class="done">
-      				<a href="#" class="auth-item">Prove Your Ether Account</a>
+      			<li class="done row">
+      				<a href="#" class="auth-item col col-4 offset-3">Prove Your Ether Account</a>
       				<img src="assets/image/confirm.png" height="25" class="confirm">
+      				<hr class="inside">
       			</li>
-      			<li :class="{ done: $root.accountInfo.data.brightid_level_riched }">
-      				<a href="#" class="auth-item">BrightID Score Grater Than 90</a>
+      			<li class="row" :class="{ done: $root.accountInfo.data.BDT_balance > 0 }">
+      				<a href="#" class="auth-item col col-4 offset-3">BDT Balance</a>
+      				<img src="assets/image/confirm.png" height="25" class="confirm" v-if="$root.accountInfo.data.BDT_balance > 0">
+      				<span class="dot" v-else></span>
+      				<hr class="inside">
+      			</li>
+      			<li class="row" :class="{ done: $root.accountInfo.data.brightid_level_riched }">
+      				<a href="#" class="auth-item col col-4 offset-3">BrightID Score Grater Than 90</a>
       				<img src="assets/image/confirm.png" height="25" class="confirm" v-if="$root.accountInfo.data.brightid_level_riched">
       				<span class="dot" v-else></span>
+      				<hr class="inside">
       			</li>
-      			<li :class="{ done: $root.accountInfo.data.twitte_confirmation }">
-      				<a href="#" class="auth-item">Prove Your Twitter</a>
-      				<img src="assets/image/confirm.png" height="25" class="confirm" v-if="$root.accountInfo.data.twitte_confirmation">
+      			<li class="row" :class="{ done: $root.accountInfo.data.twitter_confirmation }">
+      				<a href="#" class="auth-item col col-4 offset-3">Prove Your Twitter</a>
+      				<img src="assets/image/confirm.png" height="25" class="confirm" v-if="$root.accountInfo.data.twitter_confirmation">
       				<span class="dot" v-else></span>
+      				<hr class="inside">
       			</li>
-      			<li :class="{ done: $root.accountInfo.data.instagram_confirmation }">
-      				<a href="#" class="auth-item">Prove Your Instagram</a>
+      			<li class="row" :class="{ done: $root.accountInfo.data.instagram_confirmation }">
+      				<a href="#/instagram" class="auth-item col col-4 offset-3">Prove Your Instagram</a>
       				<img src="assets/image/confirm.png" height="25" class="confirm" v-if="$root.accountInfo.data.instagram_confirmation">
       				<span class="dot" v-else></span>
+      				<hr class="inside">
       			</li>
       		</ul>
       	</div>
@@ -76,14 +76,17 @@
 </template>
 
 <style lang="css">
+.inside {
+	/*width: 50%;*/
+}
 .dot {
 	height: 25px;
 	width: 25px;
 	background-color: #bbb;
 	border-radius: 50%;
 	display: inline-block;
-	right: 30%;
-	position: absolute;
+/*	right: 30%;
+	position: absolute;*/
 }
 .auth-items {
 	list-style-type: none;
@@ -101,8 +104,8 @@
 	margin-right: 5%;
 }
 .confirm {
-	right: 30%;
-	position: absolute;
+/*	right: 30%;
+	position: absolute;*/
 }
 .btn-social {
     color: #000 !important;

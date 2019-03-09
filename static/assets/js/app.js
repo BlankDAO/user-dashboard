@@ -126,7 +126,6 @@ const app = new Vue({
       }
       this.$http.post('/get-info', {'account': this.defaultAccount}).then(function(response) {
         if( response.data.status ) {
-          console.log(response.data, '+-*')
           this.accountInfo = response.data;
           if ( callback ) callback();
           return;
@@ -147,10 +146,7 @@ const app = new Vue({
       })
     },
     redircetUrl() {
-      // return;
-      console.log(this.accountInfo, '***');
       if ( this.accountInfo.brightid_confirm ) {
-        // TODO: check if path is not home, then change it
         router.push('/');
       }
       else {
