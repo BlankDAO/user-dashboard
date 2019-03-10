@@ -32,6 +32,37 @@ jQuery(function ($) {
 });
 
 
+Loader = (function(){
+  var self = {};
+
+  self.loaderObj = null;
+
+  self.start = function() {
+    self.loaderObj = swal({
+      title: 'Please Wait',
+      imageUrl: 'https://thumbs.gfycat.com/PastelOnlyDarklingbeetle-size_restricted.gif',
+      imageAlt: 'Loader',
+      backdrop: `
+        rgba(23, 24, 33, 0.81)
+      `,
+      timer: 7000,
+      allowOutsideClick: false,
+      showConfirmButton: false,
+    }).catch(swal.noop)
+  }
+
+  self.stop = function() {
+    swal({
+      timer: 0.1,
+      showConfirmButton: false,
+      allowOutsideClick: false,
+    }).catch(swal.noop);
+  }
+
+  return self;
+})();
+
+
 metaMaskInit = function () {
   if (typeof web3 === 'undefined'){
     Swal.fire({
@@ -147,6 +178,7 @@ const app = new Vue({
     },
     redircetUrl() {
       if ( this.accountInfo.brightid_confirm ) {
+        Loader.stop();
         router.push('/');
       }
       else {
@@ -164,6 +196,7 @@ const app = new Vue({
 
   },
   mounted() {
+    Loader.start();
     metaMaskInit();
     this.getInfo(this.redircetUrl);
   },

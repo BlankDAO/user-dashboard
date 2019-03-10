@@ -211,7 +211,7 @@ def submit_instagram():
     }, {'$set': {
         'instagram': data['instagram_username']
     }},
-                            upsert=False)
+    upsert=False)
     return json.dumps({
         'msg':
         'Your Instagram Username Submited Successfully. It will be confirmed in next 24 hours',
@@ -243,10 +243,22 @@ def twitter_authorized():
     user_data = twitter.twitter_get_access_token(access_token_list)
     user_data['publicKey'] = res['publicKey']
     g.db.twitter.insert_one(user_data)
-    return json.dumps({
-        'msg': 'Done Successfully',
-        'status': True
-    })
+    update_member_twitter_state(res['publicKey'])
+    g.db.twitter_temp.delete_one({'_id': res['_id']})
+    return redirect('/static/index.html')
+
+
+def update_member_twitters_state(publicKey):
+    res = g.db.members.find_one({'publicKey': publicKey})
+    if not res:
+        raise ErrorToClient('something wrong, your public key is not defined')
+
+    g.db.members.update_one({
+        '_id': res['_id']
+    }, {'$set': {
+        'twitter_confirmation': True
+    }},
+    upsert=False)
 
 
 def brightid_score():
