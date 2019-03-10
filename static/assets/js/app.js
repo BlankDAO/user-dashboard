@@ -145,6 +145,7 @@ const app = new Vue({
     reloadPage(response) {
       let timerInterval
       Swal.fire({
+        showCancelButton: true,
         title: response.data.msg,
         html: 'Page Will Reload Automatically After 30 Seconds,It will reload in <strong></strong> seconds.',
         timer: 30000,
@@ -156,15 +157,11 @@ const app = new Vue({
           }, 1000)
         },
         onClose: () => {
-          clearInterval(timerInterval)
+          clearInterval( timerInterval )
         }
       }).then((result) => {
-        if (
-          // Read more about handling dismissals
-          result.dismiss === Swal.DismissReason.timer
-        ) {
+        if ( result.dismiss === Swal.DismissReason.timer ) {
           location.reload();
-          console.log('Page Reload Automatically')
         }
       })
     },
