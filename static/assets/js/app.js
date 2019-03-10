@@ -142,6 +142,31 @@ const app = new Vue({
     }
   },
   methods: {
+    reloadPage(response) {
+      let timerInterval
+      Swal.fire({
+        title: response.data.msg,
+        html: 'Page Will Reload Automatically After 10 Seconds,It will reload in <strong></strong> seconds.',
+        timer: 10000,
+        onBeforeOpen: () => {
+          Swal.showLoading()
+          timerInterval = setInterval(() => {
+            Swal.getContent().querySelector('strong')
+              .textContent = Swal.getTimerLeft()
+          }, 1000)
+        },
+        onClose: () => {
+          clearInterval(timerInterval)
+        }
+      }).then((result) => {
+        if (
+          // Read more about handling dismissals
+          result.dismiss === Swal.DismissReason.timer
+        ) {
+          console.log('Page Reload Automatically')
+        }
+      })
+    },
     getInfo(callback) {
       try {
         this.defaultAccount = web3.eth.defaultAccount;
@@ -168,12 +193,7 @@ const app = new Vue({
           footer: ''
         });
       },function(response){
-        Swal.fire({
-          type: 'error',
-          title: 'Error in Connection',
-          text: '',
-          footer: ''
-        });
+        this.reloadPage(response);
       })
     },
     redircetUrl() {

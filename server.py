@@ -89,6 +89,8 @@ def index():
 @app.route('/get-info', methods=['POST'])
 def get_info():
     data = json.loads(request.data)
+    if 'account' not in data:
+        raise ErrorToClient('Error in connection')
     account = check_eth_addr(data['account'])
     res = g.db.members.find_one({'account': account})
     if not res:
@@ -119,7 +121,7 @@ def submit_member():
     data['instagram_confirmation'] = False
     data['twitter'] = None
     data['twitter_confirmation'] = False
-    data['brightid_level_reached'] = True if 90 <= data['score'] else False
+    data['brightid_level_reached'] = True if data['score'] >= 90 else False
     data['account'] = check_eth_addr(data['account'])
     g.db.members.insert_one(data)
     return json.dumps({'status': True})
@@ -223,7 +225,15 @@ def submit_instagram():
 @app.route('/twitter-login', methods = ['POST'])
 def twitter_login():
     data = json.loads(request.data)
-    url = twitter.twitter_get_oauth_request_token(data['publicKey'])
+    pk = data['publicKey']
+    res = g.db.members.find_one({'publicKey': pk})
+    if not res:
+        raise ErrorToClient('Cant find your publicKey')
+
+    if res['twitter_confirmation'] == True:
+        raise ErrorToClient('Your twitter account submited')
+
+    url = twitter.twitter_get_oauth_request_token(pk)
     return json.dumps({
         'url': url,
         'msg': 'Done Successfully',

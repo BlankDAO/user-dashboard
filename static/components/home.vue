@@ -51,7 +51,7 @@
       				<hr class="inside">
       			</li>
       			<li class="row" :class="{ done: $root.accountInfo.data.brightid_level_riched }">
-      				<a href="#" class="auth-item col col-4 offset-3">BrightID Score Grater Than 90</a>
+      				<a href="#" class="auth-item col col-4 offset-3">+90 BrightID Score</a>
       				<img src="assets/image/confirm.png" height="25" class="confirm" v-if="$root.accountInfo.data.brightid_level_riched">
       				<span class="dot" v-else></span>
       				<hr class="inside">
@@ -85,8 +85,6 @@
 	background-color: #bbb;
 	border-radius: 50%;
 	display: inline-block;
-/*	right: 30%;
-	position: absolute;*/
 }
 .auth-items {
 	list-style-type: none;
@@ -104,8 +102,6 @@
 	margin-right: 5%;
 }
 .confirm {
-/*	right: 30%;
-	position: absolute;*/
 }
 .btn-social {
     color: #000 !important;
