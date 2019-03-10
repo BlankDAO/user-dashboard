@@ -146,13 +146,13 @@ const app = new Vue({
       let timerInterval
       Swal.fire({
         title: response.data.msg,
-        html: 'Page Will Reload Automatically After 10 Seconds,It will reload in <strong></strong> seconds.',
-        timer: 10000,
+        html: 'Page Will Reload Automatically After 30 Seconds,It will reload in <strong></strong> seconds.',
+        timer: 30000,
         onBeforeOpen: () => {
           Swal.showLoading()
           timerInterval = setInterval(() => {
             Swal.getContent().querySelector('strong')
-              .textContent = Swal.getTimerLeft()
+              .textContent = Math.round(Swal.getTimerLeft() / 1000)
           }, 1000)
         },
         onClose: () => {
