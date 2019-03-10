@@ -229,7 +229,6 @@ def twitter_login():
         'msg': 'Done Successfully',
         'status': True
     })
-    return redirect(url)
 
 
 @app.route('/twitter-authorized')

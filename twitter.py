@@ -6,7 +6,7 @@ from flask import g
 
 def twitter_get_oauth_request_token(publicKey):
     twitter_url = 'https://api.twitter.com/oauth'
-    request_token = OAuth1Session(client_key=config.consumer_key, client_secret=config.consumer_secret)
+    request_token = OAuth1Session(client_key=config['consumer_key'], client_secret=config['consumer_secret'])
     url = twitter_url + '/request_token'
     data = request_token.get(url)
     data_token = str.split(data.text, '&')
@@ -25,8 +25,8 @@ def twitter_get_oauth_request_token(publicKey):
 
 
 def twitter_get_oauth_token(verifier, ro_key, ro_secret):
-    oauth_token = OAuth1Session(client_key=config.consumer_key,
-                                client_secret=config.consumer_secret,
+    oauth_token = OAuth1Session(client_key=config['consumer_key'],
+                                client_secret=config['consumer_secret'],
                                 resource_owner_key=ro_key,
                                 resource_owner_secret=ro_secret)
     url = 'https://api.twitter.com/oauth/access_token'
@@ -45,8 +45,8 @@ def twitter_get_access_token(access_token_list):
     secret = access_token_secret[1]
     name = access_token_name[1]
     id = access_token_id[1]
-    oauth_user = OAuth1Session(client_key=config.consumer_key,
-                               client_secret=config.consumer_secret,
+    oauth_user = OAuth1Session(client_key=config['consumer_key'],
+                               client_secret=config['consumer_secret'],
                                resource_owner_key=key,
                                resource_owner_secret=secret)
     url_user = 'https://api.twitter.com/1.1/account/verify_credentials.json'
