@@ -186,14 +186,8 @@ const app = new Vue({
           if ( callback ) callback();
           return;
         }
-        Swal.fire({
-          type: 'error',
-          title: response.data.msg,
-          text: '',
-          footer: ''
-        });
-      },function(response){
         this.reloadPage(response);
+      },function(response){
       })
     },
     redircetUrl() {
