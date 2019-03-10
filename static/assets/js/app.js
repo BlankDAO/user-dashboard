@@ -40,7 +40,7 @@ Loader = (function(){
   self.start = function() {
     self.loaderObj = swal({
       title: 'Please Wait',
-      imageUrl: 'https://thumbs.gfycat.com/PastelOnlyDarklingbeetle-size_restricted.gif',
+      imageUrl: 'https://cdn.dribbble.com/users/18886/screenshots/1027635/loading.gif',
       imageAlt: 'Loader',
       backdrop: `
         rgba(23, 24, 33, 0.81)

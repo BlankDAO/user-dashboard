@@ -243,7 +243,7 @@ def twitter_authorized():
     user_data = twitter.twitter_get_access_token(access_token_list)
     user_data['publicKey'] = res['publicKey']
     g.db.twitter.insert_one(user_data)
-    update_member_twitter_state(res['publicKey'])
+    update_member_twitters_state(res['publicKey'])
     g.db.twitter_temp.delete_one({'_id': res['_id']})
     return redirect('/static/index.html')
 
