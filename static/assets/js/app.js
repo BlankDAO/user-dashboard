@@ -163,6 +163,7 @@ const app = new Vue({
           // Read more about handling dismissals
           result.dismiss === Swal.DismissReason.timer
         ) {
+          location.reload();
           console.log('Page Reload Automatically')
         }
       })
