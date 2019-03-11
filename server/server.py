@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from flask import Flask, redirect, request, g, session
+from flask import Flask, redirect, request, g, session, send_from_directory
+from insta_pic_genrator import InstagramQrCode
 from web3 import Web3, HTTPProvider
 from datetime import timedelta
 from io import BytesIO as IO
@@ -13,7 +14,9 @@ import gzip
 import json
 import os
 
-app = Flask(__name__)
+app = Flask(__name__,
+            static_url_path='',
+            static_folder='../ui')
 app.secret_key = os.urandom(24)
 
 abspath = os.path.abspath(__file__)
@@ -83,7 +86,7 @@ def check_eth_addr(address):
 
 @app.route('/')
 def index():
-    return redirect('/static/index.html')
+    return redirect('/index.html')
 
 
 @app.route('/get-info', methods=['POST'])
@@ -255,7 +258,31 @@ def twitter_authorized():
     g.db.twitter.insert_one(user_data)
     update_member_twitters_state(res['publicKey'])
     g.db.twitter_temp.delete_one({'_id': res['_id']})
-    return redirect('/static/index.html')
+    return redirect('/index.html')
+
+
+
+@app.route('/instagram-image', methods = ['POST'])
+def instagram_image():
+    print('dfsdfsdfsd***********************')
+    data = json.loads(request.data)
+    pk = data['publicKey']
+    res = g.db.members.find_one({'publicKey': pk})
+    if not res:
+        raise ErrorToClient('Cant find your publicKey')
+
+    image = InstagramQrCode()
+    file_name = image.get_file(pk)
+    return json.dumps({
+        'file_name': file_name,
+        'status': True
+    })
+    # return send_file('../insta-images/' + file_name + '.png', attachment_filename="img.png")
+
+
+@app.route('/instagram-image/<file>')
+def get_instagram_image(file):
+    return send_from_directory('../insta-images', file + '.png')
 
 
 def update_member_twitters_state(publicKey):
