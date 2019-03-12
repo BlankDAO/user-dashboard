@@ -40,7 +40,7 @@ Loader = (function(){
   self.start = function() {
     self.loaderObj = swal({
       title: 'Please Wait',
-      imageUrl: 'https://cdn.dribbble.com/users/18886/screenshots/1027635/loading.gif',
+      imageUrl: 'https://thumbs.gfycat.com/CaringLonelyHermitcrab-small.gif',
       imageAlt: 'Loader',
       backdrop: `
         rgba(23, 24, 33, 0.81)
@@ -184,7 +184,7 @@ const app = new Vue({
           if ( callback ) callback();
           return;
         }
-        this.reloadPage(response);
+        // this.reloadPage(response);
       },function(response){
       })
     },

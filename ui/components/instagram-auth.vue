@@ -3,7 +3,18 @@
       <div class="row justify-content-center">
 	      <h2 class="col col-12">Instagram</h2>
 	      <hr>
-          <div class="col col-12">
+          <div class="col col-12 row justify-content-center">
+            <p class="info">Please post this image in your instagram, and enter your instagram username</p>
+          </div>
+          <hr>
+          <div class="col col-12 row justify-content-center">
+            <img :src="'/instagram-image/' + image" class="qr-img">
+          </div>
+          <div class="col col-12 row justify-content-center download-info">
+            <p>You can download this image with this url: <strong><a :href="'http://'+url +  '/instagram-image/' + image">{{url +  '/instagram-image/' + image}}</a></strong></p>
+          </div>
+          <hr>
+          <div class="col col-6 row">
             <div class="input-group input-group-icon col col-12">
               <div class="input-group-prepend">
                 <span class="input-group-text modal-input-txt">Instagram Username</span>
@@ -11,7 +22,7 @@
               <input type="text" @keyup.enter="submit" v-model="username" class="form-control" placeholder="Your Instagram Username">
             </div>
           </div>
-          <div class="col col-12">
+          <div class="col col-12 row justify-content-center">
             <button class="btn" v-on:click="submit">
                <i class="fa fa-arrow-alt-circle-right"></i> Submit
             </button>
@@ -22,6 +33,9 @@
 </template>
 
 <style lang="css">
+.download-info {
+  margin-top: 3%;
+}
 .input-group {
   margin-top: 20px;
   margin-bottom: 20px;
@@ -51,6 +65,14 @@
   float: left;
   margin-top: 5px;
 }
+.info {
+  font-family: proxima-regular;
+  font-size: 3vmin;
+}
+.qr-img {
+  height: 45vmin;
+  border: 1px black solid;
+}
 </style>
 
 <script>
@@ -58,6 +80,8 @@
     data: function() {
       return {
         username: '',
+        image: null,
+        url: window.location.hostname,
       }
     },
     props: [
@@ -98,6 +122,16 @@
           console.error('Error in Connection: ', response)
         });
       },
+      getInstagramImage() {
+        let data = {
+          'publicKey': this.$root.accountInfo.data.publicKey,
+        };
+        this.$http.post('/instagram-image', data).then(function(response){
+          this.image = response.data.file_name;
+        },function(response){
+          console.error('Error in Connection: ', response)
+        });
+      },
     },
     mounted(){
       if ( this.$root.accountInfo.data.instagram_confirmation === true ) {
@@ -107,7 +141,9 @@
             'info'
           );
           router.push('/');
+          return;
       }
+      this.getInstagramImage();
     }
   }
 </script>
