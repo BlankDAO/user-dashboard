@@ -159,7 +159,7 @@ def add_referrer():
                 'referrer': referrer,
                 'hash': data['hash'],
             }},
-                                      upsert=False)
+            upsert=False)
     else:
         g.db.referrers.insert_one({
             'referrer': referrer,
@@ -202,6 +202,7 @@ def get_referred_investors():
 @app.route('/submit-instagram', methods=['POST'])
 def submit_instagram():
     data = json.loads(request.data)
+    print(data['instagram_username'], '****')
     public_key = data['publicKey']
     res = g.db.members.find_one({'publicKey': public_key})
     if not res:
@@ -264,7 +265,6 @@ def twitter_authorized():
 
 @app.route('/instagram-image', methods = ['POST'])
 def instagram_image():
-    print('dfsdfsdfsd***********************')
     data = json.loads(request.data)
     pk = data['publicKey']
     res = g.db.members.find_one({'publicKey': pk})
@@ -277,7 +277,23 @@ def instagram_image():
         'file_name': file_name,
         'status': True
     })
-    # return send_file('../insta-images/' + file_name + '.png', attachment_filename="img.png")
+
+
+@app.route('/instagram-apply', methods = ['POST'])
+def instagram_apply():
+    data = json.loads(request.data)
+    pk = data['publicKey']
+    res = g.db.members.find_one({'publicKey': pk})
+    if not res:
+        raise ErrorToClient('Cant find your publicKey')
+
+    image = InstagramQrCode()
+    file_name = image.get_file(pk)
+    return json.dumps({
+        'file_name': file_name,
+        'status': True
+    })
+
 
 
 @app.route('/instagram-image/<file>')

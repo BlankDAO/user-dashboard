@@ -1,3 +1,4 @@
+from time import time as now
 from uuid import uuid4
 from io import BytesIO
 from PIL import Image
@@ -51,7 +52,9 @@ class InstagramQrCode(object):
 		g.db.instagram_image.insert_one({
 			'url': self.url,
 			'publicKey': publicKey,
-			'id': self.id
+			'id': self.id,
+			'uploaded': True,
+			'c_time': now()
 		})
 		return self.url
 
