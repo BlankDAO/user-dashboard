@@ -52,7 +52,8 @@
     data: function() {
       return {
         confrim: false,
-        server: 'http://127.0.0.1:3000',
+        // server: 'http://127.0.0.1:2200',
+        server: 'http://104.207.144.107:2200',
         msg: '',
         defaultAccount: '',
         qrcode: null,
@@ -80,7 +81,7 @@
           return;
         }
         this.qrcode = new QRCode("qr", {
-            text: "Nothing",
+            text: "",
             width: 255,
             height: 255,
             colorDark : "#000000",

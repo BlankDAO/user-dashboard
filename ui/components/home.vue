@@ -40,30 +40,30 @@
       	<div class="col col-12">
       		<ul class="auth-items">
       			<li class="done row">
-      				<a href="#" class="auth-item col col-4 offset-3">Prove Your Ether Account</a>
+      				<a class="auth-item col col-4 offset-3">Prove Your Ether Account</a>
       				<img src="assets/image/confirm.png" height="25" class="confirm">
       				<hr class="inside">
       			</li>
       			<li class="row" :class="{ done: $root.accountInfo.data.BDT_balance > 0 }">
-      				<a href="#" class="auth-item col col-4 offset-3">BDT Balance</a>
+      				<a :disabled="$root.accountInfo.data.BDT_balance > 0" href="#" class="auth-item col col-4 offset-3">BDT Balance</a>
       				<img src="assets/image/confirm.png" height="25" class="confirm" v-if="$root.accountInfo.data.BDT_balance > 0">
       				<span class="dot" v-else></span>
       				<hr class="inside">
       			</li>
-      			<li class="row" :class="{ done: $root.accountInfo.data.brightid_level_riched }">
-      				<a href="#" class="auth-item col col-4 offset-3">+90 BrightID Score</a>
-      				<img src="assets/image/confirm.png" height="25" class="confirm" v-if="$root.accountInfo.data.brightid_level_riched">
+      			<li class="row" :class="{ done: $root.accountInfo.data.brightid_level_reached }">
+      				<a :disabled="$root.accountInfo.data.brightid_level_reached" href="#" class="auth-item col col-4 offset-3">+90 BrightID Score</a>
+      				<img src="assets/image/confirm.png" height="25" class="confirm" v-if="$root.accountInfo.data.brightid_level_reached">
       				<span class="dot" v-else></span>
       				<hr class="inside">
       			</li>
       			<li class="row" :class="{ done: $root.accountInfo.data.twitter_confirmation }">
-      				<a href="#" class="auth-item col col-4 offset-3" v-on:click="twitterLogin">Prove Your Twitter</a>
+      				<a :disabled="$root.accountInfo.data.twitter_confirmation" href="#" class="auth-item col col-4 offset-3" v-on:click="twitterLogin">Prove Your Twitter</a>
       				<img src="assets/image/confirm.png" height="25" class="confirm" v-if="$root.accountInfo.data.twitter_confirmation">
       				<span class="dot" v-else></span>
       				<hr class="inside">
       			</li>
       			<li class="row" :class="{ done: $root.accountInfo.data.instagram_confirmation }">
-      				<a href="#/instagram" class="auth-item col col-4 offset-3">Prove Your Instagram</a>
+      				<a :disabled="$root.accountInfo.data.instagram_confirmation" href="#/instagram" class="auth-item col col-4 offset-3">Prove Your Instagram</a>
       				<img src="assets/image/confirm.png" height="25" class="confirm" v-if="$root.accountInfo.data.instagram_confirmation">
       				<span class="dot" v-else></span>
       				<hr class="inside">
@@ -199,8 +199,8 @@
 	          let data = response.data;
 	          if ( !data.status ) {
 	            Swal.fire({
-	              type: 'error',
-	              title: 'Error on saving data',
+	              type: 'info',
+	              title: 'Not Allowed',
 	              text: 'Details: ' + data.msg,
 	              footer: ''
 	            });

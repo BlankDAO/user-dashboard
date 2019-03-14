@@ -128,12 +128,15 @@
         };
         this.$http.post('/instagram-image', data).then(function(response){
           this.image = response.data.file_name;
+          Loader.stop();
         },function(response){
-          console.error('Error in Connection: ', response)
+          console.error('Error in Connection: ', response);
+          Loader.stop();
         });
       },
     },
     mounted(){
+      Loader.start();
       if ( this.$root.accountInfo.data.instagram_confirmation === true ) {
           Swal.fire(
             'Already done',
