@@ -1,6 +1,6 @@
 <template type="text/x-template">
     <div class="">
-      <div class="row justify-content-center">
+      <div class="row justify-content-center" v-if="$root.accountInfo.data.instagram">
 	      <h2 class="col col-12">Instagram</h2>
 	      <hr>
           <div class="col col-12 row justify-content-center">
@@ -14,6 +14,8 @@
             <p>You can download this image with this url: <strong><a :href="'http://'+url +  '/instagram-image/' + image">{{url +  '/instagram-image/' + image}}</a></strong></p>
           </div>
           <hr>
+      </div>
+      <div class="row justify-content-center" v-else>
           <div class="col col-6 row">
             <div class="input-group input-group-icon col col-12">
               <div class="input-group-prepend">
@@ -101,6 +103,7 @@
           'publicKey': this.$root.accountInfo.data.publicKey,
           'instagram_username': this.username,
         };
+        Loader.start();
         this.$http.post('/submit-instagram', data).then(function(response){
           let data = response.data;
           if ( !data.status ) {
@@ -117,12 +120,16 @@
             data.msg,
             'success'
           );
-          router.push('/');
+          this.getInstagramImage();
+          this.$root.getInfo();
+          // router.push('/');
+          Loader.stop();
         },function(response){
           console.error('Error in Connection: ', response)
         });
       },
       getInstagramImage() {
+        Loader.start();
         let data = {
           'publicKey': this.$root.accountInfo.data.publicKey,
         };
@@ -136,7 +143,6 @@
       },
     },
     mounted(){
-      Loader.start();
       if ( this.$root.accountInfo.data.instagram_confirmation === true ) {
           Swal.fire(
             'Already done',
@@ -146,7 +152,7 @@
           router.push('/');
           return;
       }
-      this.getInstagramImage();
+      if ( this.$root.accountInfo.data.instagram ) this.getInstagramImage();
     }
   }
 </script>
