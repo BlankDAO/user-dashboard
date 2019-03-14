@@ -98,10 +98,8 @@
         this.$http.get(this.server + '/new-code').then(function(response){
           let data = response.body;
           if ( !data.status ) {
-            this.msg = data.msg + ' Your Referrer is: ' + data.args[0].referrer;
             return;
           }
-
           this.qrcode.clear();
           this.qrcode.makeCode(data.qr);
           this.codeStatus(data.uuid, data.ae);
