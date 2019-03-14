@@ -1,3 +1,5 @@
+Obj = lambda: lambda: None
+
 INFURA_URL = 'https://mainnet.infura.io/v3/81a17a01107e4ac9bf8a556da267ae2d'
 
 BLANKDAO_PUBLIC_KEY = '117f893e-9184-427a-892c-6993e88981f0'
@@ -10,3 +12,9 @@ TWIITER_API = {
 	'consumer_key': 'UwT......No',
 	'consumer_secret': 'dfBm8F....td'
 }
+
+
+REWARDS = Obj()
+REWARDS.twitter = 5
+REWARDS.instagram = 5
+REWARDS.brightid_score = 5

@@ -1,12 +1,13 @@
-const nacl = require('tweetnacl');
-const randomBytes = require('randombytes');
-const qrcode = require("qrcode");
 const image2base64 = require('image-to-base64');
-const crypto = require("crypto");
+const randomBytes = require('randombytes');
 const fetch = require("node-fetch");
+const nacl = require('tweetnacl');
+const qrcode = require("qrcode");
+const crypto = require("crypto");
 const B64 = require('base64-js');
 var Promise = require('promise');
 const axios = require('axios');
+
 
 var ipAddress           =     "68.183.76.106";
 var serverIp            =     "*"; //Set it after launch
@@ -17,7 +18,7 @@ var blankDaoPublicKey   =     "117f893e-9184-427a-892c-6993e88981f0";
 const express       =         require('express');
 var bodyParser      =         require("body-parser");
 const app           =         express();
-const port          =         3000;
+const port          =         2200;
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -129,7 +130,7 @@ function getResponse(channel, aesKey){
 }
 
 function postData(channel, aesKey) {
-  image2base64("static/assets/image/avatar.jpg").then(function(res) {
+  image2base64("../ui/assets/image/avatar.jpg").then(function(res) {
     var photo = `data:image/jpeg;base64,${res}`;
     const dataObj = {
       publicKey: blankDaoPublicKey,

@@ -106,17 +106,29 @@ def get_info():
     for key in ['_id', 'signedMessage', 'timestamp', 'instagram', 'twitter']:
         del res[key]
     res['BDT_balance'] = blank_token_balance(check_eth_addr(data['account']))
+    res['points'] = calculate_rewards(res['publicKey'])
     return json.dumps({'status': True, 'data': res, 'brightid_confirm': True})
 
 
-@app.route('/submit-member', methods=['POST'])
-def submit_member():
-    data = json.loads(request.data)
-    if g.db.members.find_one(data['publicKey']):
-        return json.dumps({'status': False, 'msg': 'Already exists'})
-    if not verify_message(data['publicKey'], data['timestamp'],
-                          data['signedMessage']):
-        return json.dumps({'status': False, 'msg': 'Invalid data'})
+def calculate_rewards(publicKey):
+    res = g.db.points.find({'publicKey': publicKey})
+    if res.count() == 0:
+        return data
+    points = 0
+    for item in res:
+        points += item['value']
+    return points
+
+
+def add_brightid_score(publicKey):
+    g.db.points.insert_one({
+        'publicKey': publicKey,
+        'type': 'brightid_score',
+        'value': config.REWARDS.brightid_score
+    })
+
+
+def init_types(data):
     data['points'] = 0
     data['credit'] = 0
     data['earned'] = 0
@@ -125,8 +137,22 @@ def submit_member():
     data['twitter'] = None
     data['twitter_confirmation'] = False
     data['brightid_level_reached'] = True if data['score'] >= 90 else False
+    return data
+
+
+@app.route('/submit-member', methods=['POST'])
+def submit_member():
+    # TODO: just allow the js server call this function - get a signutare
+    data = json.loads(request.data)
+    if g.db.members.find_one(data['publicKey']):
+        return json.dumps({'status': False, 'msg': 'Already exists'})
+    if not verify_message(data['publicKey'], data['timestamp'],
+                          data['signedMessage']):
+        return json.dumps({'status': False, 'msg': 'Invalid data'})
+    data = init_types(data)
     data['account'] = check_eth_addr(data['account'])
     g.db.members.insert_one(data)
+    add_brightid_score(data['publicKey'])
     return json.dumps({'status': True})
 
 
@@ -202,7 +228,6 @@ def get_referred_investors():
 @app.route('/submit-instagram', methods=['POST'])
 def submit_instagram():
     data = json.loads(request.data)
-    print(data['instagram_username'], '****')
     public_key = data['publicKey']
     res = g.db.members.find_one({'publicKey': public_key})
     if not res:
@@ -221,8 +246,7 @@ def submit_instagram():
     return json.dumps({
         'msg':
         'Your Instagram Username Submited Successfully. It will be confirmed in next 24 hours',
-        'status':
-        True
+        'status': True
     })
 
 
@@ -259,6 +283,11 @@ def twitter_authorized():
     g.db.twitter.insert_one(user_data)
     update_member_twitters_state(res['publicKey'])
     g.db.twitter_temp.delete_one({'_id': res['_id']})
+    g.db.points.insert_one({
+        'publicKey': res['publicKey'],
+        'type': 'twitter',
+        'value': config.REWARDS.twitter
+    })
     return redirect('/index.html')
 
 
@@ -279,6 +308,7 @@ def instagram_image():
     })
 
 
+# user allow us to check her/his account for new post
 @app.route('/instagram-apply', methods = ['POST'])
 def instagram_apply():
     data = json.loads(request.data)
