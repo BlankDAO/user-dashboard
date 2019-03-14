@@ -24,7 +24,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.json());
 app.all('*',function(req,res,next) {
-    if (!req.get('Origin')) return next();
+    //if (!req.get('Origin')) return next();
 
     res.set('Access-Control-Allow-Origin', serverIp);
     res.set('Access-Control-Allow-Methods', 'GET,POST');
