@@ -103,7 +103,7 @@ def get_info():
                 'brightid_confirm': False
             }
         })
-    for key in ['_id', 'signedMessage', 'timestamp', 'instagram', 'twitter']:
+    for key in ['_id', 'signedMessage', 'timestamp', 'twitter']:
         del res[key]
     res['BDT_balance'] = blank_token_balance(check_eth_addr(data['account']))
     res['points'] = calculate_rewards(res['publicKey'])
