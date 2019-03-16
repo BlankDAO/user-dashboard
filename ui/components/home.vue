@@ -214,7 +214,7 @@
     	}
     },
     mounted(){
-    	this.$root.getInfo();
+    	// this.$root.getInfo();
     }
   }
 </script>

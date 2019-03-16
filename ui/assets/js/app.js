@@ -208,9 +208,21 @@ const app = new Vue({
 
   },
   mounted() {
-    Loader.start();
-    metaMaskInit();
-    this.getInfo(this.redircetUrl);
+    Swal.fire({
+      title: 'Wellcome to BlankDAO User-dashboard',
+      html: "<div><hr><h2>For useing this dashboard you have to:</h2><hr><ul style='text-align: left;'><li>Install <a href='https://metamask.io/' target='_blank'>Metamask</a></li><li>Make a Connection In Your BrightID With BlankDAO</li><li>For Getting More Point Prove Your Instagram And Your Twitter</li></ul></div>",
+      type: 'info',
+      customClass: 'swal-modal',
+      confirmButtonColor: '#fffff',
+      confirmButtonText: 'OK, I Accept'
+    }).then((result) => {
+      if (result.value) {
+        console.log('confrim it *******');
+        Loader.start();
+        metaMaskInit();
+        this.getInfo(this.redircetUrl);
+      }
+    })
   },
 }).$mount('#app')
 

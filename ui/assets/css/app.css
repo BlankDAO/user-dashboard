@@ -32,6 +32,10 @@ hr {
   width: 100%;
 }
 
+.swal-modal{
+    width:850px !important;
+}
+
 
 
 
