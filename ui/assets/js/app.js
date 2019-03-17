@@ -40,7 +40,7 @@ Loader = (function(){
   self.start = function() {
     self.loaderObj = swal({
       title: 'Please Wait',
-      imageUrl: 'https://thumbs.gfycat.com/CaringLonelyHermitcrab-small.gif',
+      imageUrl: 'https://cdn-images-1.medium.com/max/1600/1*9EBHIOzhE1XfMYoKz1JcsQ.gif',
       imageAlt: 'Loader',
       backdrop: `
         rgba(23, 24, 33, 0.81)
@@ -63,67 +63,14 @@ Loader = (function(){
 })();
 
 
-metaMaskInit = function () {
-  if (typeof web3 === 'undefined'){
-    Swal.fire({
-      type: 'error',
-      title: 'MetaMask is not installed',
-      text: 'Please install MetaMask from below link',
-      footer: '<a href="https://metamask.io">Install MetaMask</a>'
-    });
-    return;
-  }
-
-  web3.eth.getAccounts(function(err, accounts){
-    if (err != null) {
-      Swal.fire({
-        type: 'error',
-        title: 'Something wrong',
-        text: 'Check this error: ' + err,
-        footer: ''
-      });
-    }
-    else if (accounts.length === 0) {
-      Swal.fire({
-        type: 'info',
-        title: 'MetaMask is locked',
-        text: 'Please unlocked MetaMask',
-        footer: ''
-      });
-    }
-  });
-    if (window.ethereum) {
-      window.web3 = new Web3(ethereum);
-      try {
-        Web3.providers.HttpProvider.prototype.sendAsync = Web3.providers.HttpProvider.prototype.send;
-        ethereum.enable();
-      } catch (error) {
-        console.log('User denied account access...');
-        return;
-      }
-    }
-    else if (window.web3) {
-        window.web3 = new Web3(web3.currentProvider);
-    }
-    else {
-        console.log('You should consider trying MetaMask!');
-        return;
-    }
-
-    web3.eth.defaultAccount = web3.eth.accounts[0];
-    $('#user-account').html(web3.eth.accounts[0]);
-};
-
-
-
-
 
 
 const routes = [
   { path: '/', component: httpVueLoader('components/home.vue') },
   { path: '/referrer', component: httpVueLoader('components/referrer.vue') },
-  { path: '/bright-id', component: httpVueLoader('components/bright-id.vue') },
+  { path: '/login', component: httpVueLoader('components/bright-id.vue') },
   { path: '/instagram', component: httpVueLoader('components/instagram-auth.vue') },
+  { path: '/ethereum-address', component: httpVueLoader('components/ethereum-address.vue') },
 ]
 
 const router = new VueRouter({
@@ -139,6 +86,8 @@ const app = new Vue({
         brightid_confirm: false,
       },
       defaultAccount: null,
+      LoginStatus: false,
+      publicKey: '',
     }
   },
   methods: {
@@ -166,19 +115,19 @@ const app = new Vue({
       })
     },
     getInfo(callback) {
-      try {
-        this.defaultAccount = web3.eth.defaultAccount;
-      }
-      catch( e ) {
-        Swal.fire({
-          type: 'error',
-          title: 'Error in Connecting to MetaMask',
-          text: 'Details: ' + e.message,
-          footer: ''
-        });
-        return;
-      }
-      this.$http.post('/get-info', {'account': this.defaultAccount}).then(function(response) {
+      // try {
+      //   this.defaultAccount = web3.eth.defaultAccount;
+      // }
+      // catch( e ) {
+      //   Swal.fire({
+      //     type: 'error',
+      //     title: 'Error in Connecting to MetaMask',
+      //     text: 'Details: ' + e.message,
+      //     footer: ''
+      //   });
+      //   return;
+      // }
+      this.$http.post('/get-info', {'publicKey': this.publicKey}).then(function(response) {
         if( response.data.status ) {
           this.accountInfo = response.data;
           if ( callback ) callback();
@@ -188,19 +137,26 @@ const app = new Vue({
       },function(response){
       })
     },
+    isLogin() {
+      this.$http.get('/is-login').then(function(response) {
+        if( response.data.status ) {
+          this.LoginStatus = response.data.login_status;
+          if( !this.LoginStatus ) {
+            router.push('/login');
+            return;
+          }
+          this.publicKey = response.data.publicKey;
+          this.getInfo();
+        }
+      },function(response){
+      })
+    },
     redircetUrl() {
       if ( this.accountInfo.brightid_confirm ) {
-        Loader.stop();
         router.push('/');
       }
       else {
-        Swal.fire({
-          type: 'info',
-          title: 'Please approve your Ethereum address with your Brightid',
-          text: 'If this is not your address, please change your Metamask account and refresh this page',
-          footer: ''
-        });
-        router.push('/bright-id');
+        router.push('/login');
       }
     },
   },
@@ -208,21 +164,8 @@ const app = new Vue({
 
   },
   mounted() {
-    Swal.fire({
-      title: 'Wellcome to BlankDAO User-dashboard',
-      html: "<div><hr><h2>For useing this dashboard you have to:</h2><hr><ul style='text-align: left;'><li>Install <a href='https://metamask.io/' target='_blank'>Metamask</a></li><li>Make a Connection In Your BrightID With BlankDAO</li><li>For Getting More Point Prove Your Instagram And Your Twitter</li></ul></div>",
-      type: 'info',
-      customClass: 'swal-modal',
-      confirmButtonColor: '#fffff',
-      confirmButtonText: 'OK, I Accept'
-    }).then((result) => {
-      if (result.value) {
-        console.log('confrim it *******');
-        Loader.start();
-        metaMaskInit();
-        this.getInfo(this.redircetUrl);
-      }
-    })
+    $(".page-wrapper").removeClass("toggled");
+    Loader.start();
   },
 }).$mount('#app')
 

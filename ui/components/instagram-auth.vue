@@ -11,7 +11,7 @@
             <img :src="'/instagram-image/' + image" class="qr-img">
           </div>
           <div class="col col-12 row justify-content-center download-info">
-            <p>You can download this image with this url: <strong><a :href="'http://'+url +  '/instagram-image/' + image">{{url +  '/instagram-image/' + image}}</a></strong></p>
+            <p>You can download this image with this url: <strong><a target="_blank" :href="'http://'+url +  '/instagram-image/' + image">{{url +  '/instagram-image/' + image}}</a></strong></p>
           </div>
           <hr>
       </div>
@@ -141,6 +141,9 @@
           Loader.stop();
         });
       },
+    },
+    beforeMount() {
+      this.$root.isLogin();
     },
     mounted(){
       if ( this.$root.accountInfo.data.instagram_confirmation === true ) {

@@ -92,10 +92,9 @@ def index():
 @app.route('/get-info', methods=['POST'])
 def get_info():
     data = json.loads(request.data)
-    if 'account' not in data:
-        raise ErrorToClient('Error in connection')
-    account = check_eth_addr(data['account'])
-    res = g.db.members.find_one({'account': account})
+    if 'publicKey' not in data:
+        raise ErrorToClient('Error in connection - No publicKey Founded')
+    res = g.db.members.find_one({'publicKey': data['publicKey']})
     if not res:
         return json.dumps({
             'status': True,
@@ -105,9 +104,42 @@ def get_info():
         })
     for key in ['_id', 'signedMessage', 'timestamp', 'twitter']:
         del res[key]
-    res['BDT_balance'] = blank_token_balance(check_eth_addr(data['account']))
+    try:
+        res['BDT_balance'] = blank_token_balance(check_eth_addr(res['ethereum_address']))
+    except:
+        res['BDT_balance'] =  'No Address Founded'
+        pass
     res['points'] = calculate_rewards(res['publicKey'])
     return json.dumps({'status': True, 'data': res, 'brightid_confirm': True})
+
+
+
+@app.route('/submit-ethereum', methods=['POST'])
+def submit_ethereum():
+    data = json.loads(request.data)
+    if 'publicKey' not in data:
+        raise ErrorToClient('Error in connection - No publicKey Founded')
+    if 'account' not in data:
+        raise ErrorToClient('Error in connection - No Account Founded')
+    check_eth_addr(data['account'])
+    res = g.db.members.find_one({'publicKey': data['publicKey']})
+    if not res:
+        raise ErrorToClient('No Public Key Founded')
+    g.db.members.update_one({
+        '_id': res['_id']
+    }, {'$set': {
+        'ethereum_address': data['account'],
+    }},
+    upsert=False)
+    return json.dumps({'status': True})
+
+
+@app.route('/is-login')
+def is_login():
+    pk = session.get('publicKey', None)
+    if pk:
+        return json.dumps({'status': True, 'login_status': True, 'publicKey': pk})
+    return json.dumps({'status': True, 'login_status': False, 'msg': 'You are not login'})
 
 
 def calculate_rewards(publicKey):
@@ -140,20 +172,22 @@ def init_types(data):
     return data
 
 
-@app.route('/submit-member', methods=['POST'])
+@app.route('/login', methods=['POST'])
 def submit_member():
     # TODO: just allow the js server call this function - get a signutare
     data = json.loads(request.data)
     if g.db.members.find_one(data['publicKey']):
-        return json.dumps({'status': False, 'msg': 'Already exists'})
+        session['publicKey'] = data['publicKey']
+        return json.dumps({'status': True, 'msg': 'Already exists'})
     if not verify_message(data['publicKey'], data['timestamp'],
                           data['signedMessage']):
         return json.dumps({'status': False, 'msg': 'Invalid data'})
     data = init_types(data)
-    data['account'] = check_eth_addr(data['account'])
+    # data['account'] = check_eth_addr(data['account'])
     g.db.members.insert_one(data)
     add_brightid_score(data['publicKey'])
-    return json.dumps({'status': True})
+    session['publicKey'] = data['publicKey']
+    return json.dumps({'status': True, 'msg': 'Done Successfully'})
 
 
 @app.route('/check-account', methods=['POST'])

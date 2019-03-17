@@ -39,9 +39,10 @@
       <div class="row justify-content-center" style="margin-top: 5%;">
       	<div class="col col-12">
       		<ul class="auth-items">
-      			<li class="done row">
-      				<a class="auth-item col col-4 offset-3">Prove Your Ether Account</a>
-      				<img src="assets/image/confirm.png" height="25" class="confirm">
+      			<li class="row" :class="{ done: $root.accountInfo.data.ethereum_address }">
+      				<a :href="$root.accountInfo.data.ethereum_address ? '#' : '#/ethereum-address'" class="auth-item col col-4 offset-3">Prove Your Ether Account</a>
+      				<img src="assets/image/confirm.png" height="25" class="confirm" v-if="$root.accountInfo.data.ethereum_address">
+      				<span class="dot" v-else></span>
       				<hr class="inside">
       			</li>
       			<li class="row" :class="{ done: $root.accountInfo.data.BDT_balance > 0 }">
@@ -214,7 +215,8 @@
     	}
     },
     mounted(){
-    	// this.$root.getInfo();
+    	this.$root.isLogin();
+    	Loader.stop();
     }
   }
 </script>

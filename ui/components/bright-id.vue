@@ -1,17 +1,15 @@
 <template type="text/x-template">
-<div class="container">
-  <div class="row justify-content-center">
-      <div class="input-group input-group-icon col col-12">
-        <div class="input-group-prepend">
-          <span class="input-group-text modal-input-txt">Your Ethereum is</span>
+<div>
+  <h2 class="col col-12">Login</h2>
+  <hr>
+  <div class="container">
+    <div class="row justify-content-center">
+        <div class="col col-12">
+          <p class="title-head">Please scan this code in your BrightID</p>
         </div>
-        <input type="text" v-bind:value="defaultAccount" disabled class="form-control default-account" placeholder="Your Ethereum Address">
-      </div>
-      <div class="col col-12">
-        <p class="title-head">Please scan this code in your brightID</p>
-      </div>
-      <div class="col col-12 row justify-content-center" id="qr">
-      </div>
+        <div class="col col-12 row justify-content-center" id="qr">
+        </div>
+    </div>
   </div>
 </div>
 </template>
@@ -53,7 +51,7 @@
       return {
         confrim: false,
         // server: 'http://127.0.0.1:2200',
-        server: 'http://104.207.144.107:2200',
+        server: 'http://23.94.182.200:2200',
         msg: '',
         defaultAccount: '',
         qrcode: null,
@@ -66,6 +64,7 @@
       init() {
         if ( this.$root.accountInfo.brightid_confirm === true ) {
           router.push('/');
+          return;
         }
         try {
           this.defaultAccount = web3.eth.defaultAccount
@@ -93,6 +92,7 @@
         this.cronjob = setInterval(function(){
           myApp.newCode();
         }, 1000 * 60 * 1);
+        Loader.stop()
       },
       newCode() {
         this.$http.get(this.server + '/new-code').then(function(response){
@@ -108,8 +108,8 @@
         })
       },
       saveMember(data) {
-        data.account = this.defaultAccount;
-        this.$http.post('/submit-member', data).then(function(response){
+        // data.account = this.defaultAccount;
+        this.$http.post('/login', data).then(function(response){
           let data = response.data;
           if ( !data.status ) {
             Swal.fire({

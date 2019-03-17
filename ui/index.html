@@ -32,19 +32,30 @@
           <i class="fas fa-times"></i>
         </div>
       </div>
-      <div class="sidebar-header" style="display: none;">
+      <div class="sidebar-header" style="">
         <div class="user-pic">
-          <img class="img-responsive img-rounded" src="https://raw.githubusercontent.com/azouaoui-med/pro-sidebar-template/gh-pages/src/img/user.jpg"
+          <img style="filter: grayscale(100%);-webkit-filter: grayscale(100%);" class="img-responsive img-rounded" :src="$root.accountInfo.data.photo ? $root.accountInfo.data.photo : 'https://raw.githubusercontent.com/azouaoui-med/pro-sidebar-template/gh-pages/src/img/user.jpg'"
             alt="User picture">
         </div>
-        <div class="user-info">
-          <span class="user-name">Jhon
-            <strong>Smith</strong>
+        <div class="user-info" v-if="$root.accountInfo.data.name">
+          <span class="user-name">{{$root.accountInfo.data.name}}
+            <!-- <strong>Smith</strong> -->
           </span>
-          <span class="user-role">Administrator</span>
+          <!-- <span class="user-role">Points: {{$root.accountInfo.data.points}}</span> -->
+          <span class="user-role">BlankDAO Member</span>
           <span class="user-status">
             <i class="fa fa-circle"></i>
             <span>Online</span>
+          </span>
+        </div>
+        <div class="user-info" v-else>
+          <span class="user-name">You're Not Login
+            <!-- <strong>Smith</strong> -->
+          </span>
+          <span class="user-role">None</span>
+          <span class="user-status">
+            <i style="color: #fff" class="fa fa-circle"></i>
+            <span>Offilne</span>
           </span>
         </div>
       </div>
@@ -60,10 +71,10 @@
               <!-- <span class="badge badge-pill badge-warning">New</span> -->
             </a>
           </li>
-          <li hidden>
-            <a href="#">
+          <li v-if="!$root.accountInfo.data.ethereum_address">
+            <a href="#/ethereum-address">
               <i class="fa fa-shopping-cart"></i>
-              <span>Rewards</span>
+              <span>Submit Ethereum</span>
               <!-- <span class="badge badge-pill badge-danger">3</span> -->
             </a>
           </li>
