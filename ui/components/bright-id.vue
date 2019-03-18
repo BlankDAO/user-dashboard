@@ -50,8 +50,8 @@
     data: function() {
       return {
         confrim: false,
-        // server: 'http://127.0.0.1:2200',
-        server: 'http://23.94.182.200:2200',
+        server: 'http://127.0.0.1:2200',
+        // server: 'http://23.94.182.200:2200',
         msg: '',
         defaultAccount: '',
         qrcode: null,
@@ -108,11 +108,8 @@
             });
             return;
           }
-          Swal.fire(
-            'Done Successfully',
-            '',
-            'success'
-          );
+          localStorage.access_token = data.access_token;
+          console.log(localStorage.access_token)
           router.push('/');
         },function(response){
           console.error('Error in Connection: ', response)

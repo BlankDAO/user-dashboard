@@ -116,19 +116,12 @@ const app = new Vue({
       })
     },
     getInfo(callback) {
-      // try {
-      //   this.defaultAccount = web3.eth.defaultAccount;
-      // }
-      // catch( e ) {
-      //   Swal.fire({
-      //     type: 'error',
-      //     title: 'Error in Connecting to MetaMask',
-      //     text: 'Details: ' + e.message,
-      //     footer: ''
-      //   });
-      //   return;
-      // }
-      this.$http.post('/get-info', {'publicKey': this.publicKey}).then(function(response) {
+      let headers = {};
+      if ( localStorage.access_token ) {
+          headers = { headers: {'Authorization': 'Bearer ' + localStorage.getItem('access_token')}
+          }
+      }
+      this.$http.post('/get-info', {'publicKey': this.publicKey}, headers).then(function(response) {
         if( response.data.status ) {
           this.accountInfo = response.data;
           if ( callback ) callback();
@@ -139,8 +132,14 @@ const app = new Vue({
       })
     },
     isLogin() {
-      this.$http.get('/is-login').then(function(response) {
-        if( response.data.status ) {
+      let headers = {};
+      if ( localStorage.access_token ) {
+          headers = { headers: {'Authorization': 'Bearer ' + localStorage.getItem('access_token')}
+          }
+      }
+      this.$http.get('/is-login', headers).then(function(response) {
+        console.log(response.data)
+        if( response.data.status || response.data.msg == 'Missing Authorization Header' ) {
           this.LoginStatus = response.data.login_status;
           console.log('this.LoginStatus', this.LoginStatus)
           if( !this.LoginStatus ) {
@@ -151,6 +150,8 @@ const app = new Vue({
           this.getInfo();
         }
       },function(response){
+        // router.push('/login');
+        router.push('/login');
       })
     },
     redircetUrl() {

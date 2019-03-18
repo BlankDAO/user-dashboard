@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from flask import Flask, redirect, request, g, session, send_from_directory
+from flask import Flask, redirect, request, g, session, send_from_directory, jsonify
 from insta_pic_genrator import InstagramQrCode
 from web3 import Web3, HTTPProvider
 from datetime import timedelta
@@ -10,9 +10,15 @@ import nacl.signing
 import twitter
 import pymongo
 import config
+import redis
 import gzip
 import json
 import os
+
+from flask_jwt_extended import (
+    JWTManager, create_access_token, create_refresh_token, get_jti,
+    jwt_refresh_token_required, get_jwt_identity, jwt_required, get_raw_jwt
+)
 
 app = Flask(__name__,
             static_url_path='',
@@ -22,6 +28,28 @@ app.secret_key = os.urandom(24)
 abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
 os.chdir(dname)
+
+# Setup the flask-jwt-extended extension.
+ACCESS_EXPIRES = timedelta(minutes=10)
+REFRESH_EXPIRES = timedelta(days=10)
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = ACCESS_EXPIRES
+app.config['JWT_REFRESH_TOKEN_EXPIRES'] = REFRESH_EXPIRES
+app.config['JWT_BLACKLIST_ENABLED'] = True
+app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
+jwt = JWTManager(app)
+
+# Setup our redis connection for storing the blacklisted tokens
+revoked_store = redis.StrictRedis(host='localhost', port=6379, db=0,
+                                  decode_responses=True)
+
+
+@jwt.token_in_blacklist_loader
+def check_if_token_is_revoked(decrypted_token):
+    jti = decrypted_token['jti']
+    entry = revoked_store.get(jti)
+    if entry is None:
+        return True
+    return entry == 'true'
 
 
 class ErrorToClient(Exception):
@@ -58,8 +86,8 @@ def error_to_client(error):
 
 @app.before_request
 def before_request():
-    session.permanent = True
-    app.permanent_session_lifetime = timedelta(minutes=10)
+    # session.permanent = True
+    # app.permanent_session_lifetime = timedelta(minutes=10)
     client = pymongo.MongoClient('mongodb://localhost:27017/')
     g.db = client['blankdao']
     g.w3 = Web3(HTTPProvider(config.INFURA_URL))
@@ -90,6 +118,7 @@ def index():
 
 
 @app.route('/get-info', methods=['POST'])
+@jwt_required
 def get_info():
     data = json.loads(request.data)
     if 'publicKey' not in data:
@@ -135,6 +164,7 @@ def submit_ethereum():
 
 
 @app.route('/is-login')
+@jwt_required
 def is_login():
     pk = session.get('publicKey', None)
     if pk:
@@ -187,6 +217,22 @@ def init_types(data):
     return data
 
 
+def jwt_create_token(publicKey):
+    # Create our JWTs
+    access_token = create_access_token(identity=publicKey)
+    refresh_token = create_refresh_token(identity=publicKey)
+
+    access_jti = get_jti(encoded_token=access_token)
+    refresh_jti = get_jti(encoded_token=refresh_token)
+    revoked_store.set(access_jti, 'false', ACCESS_EXPIRES * 1.2)
+    revoked_store.set(refresh_jti, 'false', REFRESH_EXPIRES * 1.2)
+
+    ret = {
+        'access_token': access_token,
+        'refresh_token': refresh_token
+    }
+    return ret
+
 @app.route('/login', methods=['POST'])
 def submit_member():
     # TODO: just allow the js server call this function - get a signutare
@@ -200,13 +246,21 @@ def submit_member():
     if res:
         add_brightid_score(data['publicKey'], res['brightid_level_reached'], data['score'])
         session['publicKey'] = data['publicKey']
-        return json.dumps({'status': True, 'msg': 'Already exists'})
+        token = jwt_create_token(data['publicKey'])
+        r = { 'status': True }
+        r.update( token )
+        return jsonify( r ), 201
+
+
 
     data = init_types(data)
     g.db.members.insert_one(data)
     add_brightid_score(data['publicKey'], False, data['score'])
     session['publicKey'] = data['publicKey']
-    return json.dumps({'status': True, 'msg': 'Done Successfully'})
+    token = jwt_create_token(data['publicKey'])
+    r = { 'status': True }
+    r.update( token )
+    return jsonify( r ), 201
 
 
 @app.route('/logout')
