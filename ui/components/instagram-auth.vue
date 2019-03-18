@@ -4,7 +4,7 @@
 	      <h2 class="col col-12">Instagram</h2>
 	      <hr>
           <div class="col col-12 row justify-content-center">
-            <p class="info">Please post this image in your instagram, and enter your instagram username</p>
+            <p class="info">Please post this image in your instagram, we confirm it in next 24 hours</p>
           </div>
           <hr>
           <div class="col col-12 row justify-content-center">
@@ -25,10 +25,15 @@
             </div>
           </div>
           <div class="col col-12 row justify-content-center">
-            <button class="btn" v-on:click="submit">
+            <button class="btn-insta btn" v-on:click="submit">
                <i class="fa fa-arrow-alt-circle-right"></i> Submit
             </button>
           </div>
+      </div>
+      <div class="row justify-content-center">
+          <a class="btn-insta btn" href="#/">
+             <i class="fa fa-home"></i> Back
+          </a>
       </div>
     </div>
 
@@ -52,7 +57,7 @@
   font-family: proxima-regular;
   font-size: 1.5em;
 }
-.btn {
+.btn-insta {
   font-family: proxima-regular;
   font-size: 16px;
   margin-top: 2vmin;
@@ -63,7 +68,7 @@
   border-color: #111A44;
   background-color: white;
 }
-.btn i {
+.btn-insta i {
   float: left;
   margin-top: 5px;
 }
@@ -146,6 +151,7 @@
       this.$root.isLogin();
     },
     mounted(){
+      if (this.$root.accountInfo.data.instagram_confirmation == null) router.push('/');
       if ( this.$root.accountInfo.data.instagram_confirmation === true ) {
           Swal.fire(
             'Already done',
