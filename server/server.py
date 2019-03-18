@@ -145,19 +145,34 @@ def is_login():
 def calculate_rewards(publicKey):
     res = g.db.points.find({'publicKey': publicKey})
     if res.count() == 0:
-        return data
+        return 0
     points = 0
     for item in res:
         points += item['value']
     return points
 
 
-def add_brightid_score(publicKey):
+def add_brightid_score(publicKey, brightid_level_reached=False, score=0):
+    if brightid_level_reached:
+        return True
+
+    score = True if score >= 90 else False
+    g.db.members.update_one({
+        'publicKey': publicKey
+    }, {'$set': {
+        'brightid_level_reached': True,
+    }},
+    upsert=False)
+
+    if not score:
+        return score
+
     g.db.points.insert_one({
         'publicKey': publicKey,
         'type': 'brightid_score',
         'value': config.REWARDS.brightid_score
     })
+    return True
 
 
 def init_types(data):
@@ -168,7 +183,7 @@ def init_types(data):
     data['instagram_confirmation'] = False
     data['twitter'] = None
     data['twitter_confirmation'] = False
-    data['brightid_level_reached'] = True if data['score'] >= 90 else False
+    # data['brightid_level_reached'] = True if data['score'] >= 90 else False
     return data
 
 
@@ -176,16 +191,20 @@ def init_types(data):
 def submit_member():
     # TODO: just allow the js server call this function - get a signutare
     data = json.loads(request.data)
-    if g.db.members.find_one(data['publicKey']):
-        session['publicKey'] = data['publicKey']
-        return json.dumps({'status': True, 'msg': 'Already exists'})
+
     if not verify_message(data['publicKey'], data['timestamp'],
                           data['signedMessage']):
-        return json.dumps({'status': False, 'msg': 'Invalid data'})
+        raise ErrorToClient('Invalid Data')
+
+    res = g.db.members.find_one({'publicKey': data['publicKey']})
+    if res:
+        add_brightid_score(data['publicKey'], res['brightid_level_reached'], data['score'])
+        session['publicKey'] = data['publicKey']
+        return json.dumps({'status': True, 'msg': 'Already exists'})
+
     data = init_types(data)
-    # data['account'] = check_eth_addr(data['account'])
     g.db.members.insert_one(data)
-    add_brightid_score(data['publicKey'])
+    add_brightid_score(data['publicKey'], False, data['score'])
     session['publicKey'] = data['publicKey']
     return json.dumps({'status': True, 'msg': 'Done Successfully'})
 
