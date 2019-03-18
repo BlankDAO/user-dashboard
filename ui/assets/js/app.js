@@ -71,6 +71,7 @@ const routes = [
   { path: '/login', component: httpVueLoader('components/bright-id.vue') },
   { path: '/instagram', component: httpVueLoader('components/instagram-auth.vue') },
   { path: '/ethereum-address', component: httpVueLoader('components/ethereum-address.vue') },
+  { path: '/logout', component: httpVueLoader('components/logout.vue') },
 ]
 
 const router = new VueRouter({
@@ -141,6 +142,7 @@ const app = new Vue({
       this.$http.get('/is-login').then(function(response) {
         if( response.data.status ) {
           this.LoginStatus = response.data.login_status;
+          console.log('this.LoginStatus', this.LoginStatus)
           if( !this.LoginStatus ) {
             router.push('/login');
             return;

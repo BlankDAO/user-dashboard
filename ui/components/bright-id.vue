@@ -66,19 +66,7 @@
           router.push('/');
           return;
         }
-        try {
-          this.defaultAccount = web3.eth.defaultAccount
-        }
-        catch( e ) {
-          Swal.fire({
-            type: 'error',
-            title: 'Error in Connecting to MetaMask',
-            text: 'Details: ' + e.message,
-            footer: ''
-          });
-          router.push('/');
-          return;
-        }
+
         this.qrcode = new QRCode("qr", {
             text: "",
             width: 255,

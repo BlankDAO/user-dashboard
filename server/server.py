@@ -209,6 +209,15 @@ def submit_member():
     return json.dumps({'status': True, 'msg': 'Done Successfully'})
 
 
+@app.route('/logout')
+def logout():
+    user = session.get('publicKey', None)
+    if user:
+        session['publicKey'] = None
+        return json.dumps({'status': True, 'msg': 'Logout Successfully'})
+    raise ErrorToClient('You are not logged in')
+
+
 @app.route('/check-account', methods=['POST'])
 def check_account():
     data = json.loads(request.data)
