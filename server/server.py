@@ -144,6 +144,7 @@ def get_info():
 
 
 @app.route('/submit-ethereum', methods=['POST'])
+@jwt_required
 def submit_ethereum():
     data = json.loads(request.data)
     if 'publicKey' not in data:
@@ -166,10 +167,7 @@ def submit_ethereum():
 @app.route('/is-login')
 @jwt_required
 def is_login():
-    pk = session.get('publicKey', None)
-    if pk:
-        return json.dumps({'status': True, 'login_status': True, 'publicKey': pk})
-    return json.dumps({'status': True, 'login_status': False, 'msg': 'You are not login'})
+    return json.dumps({'status': True, 'login_status': True, 'msg': 'You are not login'})
 
 
 def calculate_rewards(publicKey):
@@ -243,11 +241,10 @@ def submit_member():
         raise ErrorToClient('Invalid Data')
 
     res = g.db.members.find_one({'publicKey': data['publicKey']})
+    r = { 'status': True, 'publicKey': data['publicKey'] }
     if res:
         add_brightid_score(data['publicKey'], res['brightid_level_reached'], data['score'])
-        session['publicKey'] = data['publicKey']
         token = jwt_create_token(data['publicKey'])
-        r = { 'status': True }
         r.update( token )
         return jsonify( r ), 201
 
@@ -256,20 +253,17 @@ def submit_member():
     data = init_types(data)
     g.db.members.insert_one(data)
     add_brightid_score(data['publicKey'], False, data['score'])
-    session['publicKey'] = data['publicKey']
     token = jwt_create_token(data['publicKey'])
-    r = { 'status': True }
     r.update( token )
     return jsonify( r ), 201
 
 
 @app.route('/logout')
+@jwt_required
 def logout():
-    user = session.get('publicKey', None)
-    if user:
-        session['publicKey'] = None
-        return json.dumps({'status': True, 'msg': 'Logout Successfully'})
-    raise ErrorToClient('You are not logged in')
+    jti = get_raw_jwt()['jti']
+    revoked_store.set(jti, 'true', ACCESS_EXPIRES * 1.2)
+    return json.dumps({'status': True, 'msg': 'Logout Successfully'})
 
 
 @app.route('/check-account', methods=['POST'])
@@ -342,6 +336,7 @@ def get_referred_investors():
 
 
 @app.route('/submit-instagram', methods=['POST'])
+@jwt_required
 def submit_instagram():
     data = json.loads(request.data)
     public_key = data['publicKey']

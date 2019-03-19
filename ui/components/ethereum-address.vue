@@ -161,8 +161,9 @@
             return;
         }
         Loader.stop();
+        let headers = getHeaders();
         let data = {'publicKey': this.$root.publicKey, 'account': this.defaultAccount};
-        this.$http.post('/submit-ethereum', data).then(function(response) {
+        this.$http.post('/submit-ethereum', data, headers).then(function(response) {
           if( !response.data.status ) {
             Swal.fire({
               type: 'error',

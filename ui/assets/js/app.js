@@ -32,6 +32,15 @@ jQuery(function ($) {
 });
 
 
+function getHeaders() {
+  let access_token = '';
+  if ( localStorage.access_token ) {
+      access_token = localStorage.getItem('access_token');
+  }
+  return { headers: {'Authorization': 'Bearer ' + access_token} }
+}
+
+
 Loader = (function(){
   var self = {};
 
@@ -116,11 +125,7 @@ const app = new Vue({
       })
     },
     getInfo(callback) {
-      let headers = {};
-      if ( localStorage.access_token ) {
-          headers = { headers: {'Authorization': 'Bearer ' + localStorage.getItem('access_token')}
-          }
-      }
+      let headers = getHeaders();
       this.$http.post('/get-info', {'publicKey': this.publicKey}, headers).then(function(response) {
         if( response.data.status ) {
           this.accountInfo = response.data;
@@ -132,11 +137,7 @@ const app = new Vue({
       })
     },
     isLogin() {
-      let headers = {};
-      if ( localStorage.access_token ) {
-          headers = { headers: {'Authorization': 'Bearer ' + localStorage.getItem('access_token')}
-          }
-      }
+      let headers = getHeaders();
       this.$http.get('/is-login', headers).then(function(response) {
         console.log(response.data)
         if( response.data.status || response.data.msg == 'Missing Authorization Header' ) {
@@ -146,7 +147,7 @@ const app = new Vue({
             router.push('/login');
             return;
           }
-          this.publicKey = response.data.publicKey;
+          this.publicKey = localStorage.getItem('publicKey');
           this.getInfo();
         }
       },function(response){

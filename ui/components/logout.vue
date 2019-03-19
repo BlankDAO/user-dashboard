@@ -25,8 +25,9 @@
     },
     mounted(){
       Loader.start();
-      this.$http.get('/logout').then(function(response) {
-        if( !response.data.status ) {
+      let headers = getHeaders();
+      this.$http.get('/logout', headers).then(function(response) {
+        if( !response.data.hasOwnProperty('status') ) {
           Swal.fire({
             type: 'error',
             title: response.data.msg,
@@ -34,6 +35,8 @@
           });
           return;
         }
+        localStorage.publicKey = '';
+        localStorage.access_token = '';
         this.$root.login_status = false;
         this.$root.accountInfo = {
           data: {},

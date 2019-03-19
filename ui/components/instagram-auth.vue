@@ -109,7 +109,8 @@
           'instagram_username': this.username,
         };
         Loader.start();
-        this.$http.post('/submit-instagram', data).then(function(response){
+        let headers = getHeaders();
+        this.$http.post('/submit-instagram', data, headers).then(function(response){
           let data = response.data;
           if ( !data.status ) {
             Swal.fire({

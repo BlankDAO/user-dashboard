@@ -108,8 +108,9 @@
             });
             return;
           }
+          console.log('++++++++++++++++++++++', data)
           localStorage.access_token = data.access_token;
-          console.log(localStorage.access_token)
+          localStorage.publicKey = data.publicKey;
           router.push('/');
         },function(response){
           console.error('Error in Connection: ', response)
