@@ -161,6 +161,7 @@
             return;
         }
         Loader.stop();
+        this.$root.loader = false;
         let headers = getHeaders();
         let data = {'publicKey': this.$root.publicKey, 'account': this.defaultAccount};
         this.$http.post('/submit-ethereum', data, headers).then(function(response) {
@@ -171,6 +172,7 @@
               footer: ''
             });
             Loader.stop();
+            this.$root.loader = false;
             return;
           }
           Swal.fire({
@@ -198,6 +200,7 @@
           return;
         }
         Loader.stop();
+        this.$root.loader = false;
       },
     },
     mounted(){

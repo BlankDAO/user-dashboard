@@ -53,6 +53,7 @@ app.post('/check-code', (req, res) => {
   let uuid = req.body.uuid;
   let ae = req.body.ae;
   uuid = uuid + "2";
+  console.log(uuid, ae)
   getResponse(uuid, ae).then(function(data) {
     res.send(JSON.parse(data));
   });

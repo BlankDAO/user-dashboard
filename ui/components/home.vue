@@ -195,6 +195,7 @@
     methods: {
     	twitterLogin() {
     		Loader.start();
+    		this.$root.loader = true;
     		let data = { 'publicKey': this.$root.accountInfo.data.publicKey }
 	        this.$http.post('/twitter-login', data).then(function(response){
 	          let data = response.data;
@@ -210,6 +211,7 @@
 	          window.location.href = data.url;
 	        },function(response){
 	        	Loader.stop();
+	        	this.$root.loader = false;
 	          	console.error('Error in Connection: ', response)
 	        });
     	}

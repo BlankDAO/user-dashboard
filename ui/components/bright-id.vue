@@ -50,12 +50,13 @@
     data: function() {
       return {
         confrim: false,
-        // server: 'http://127.0.0.1:2200',
-        server: 'http://23.94.182.200:2200',
+        codeTimer: null,
+        loginDone: false,
         msg: '',
         defaultAccount: '',
         qrcode: null,
-        cronjob: null,
+        cronjob: [],
+        counter: 1,
       }
     },
     props: [
@@ -76,27 +77,28 @@
             correctLevel : QRCode.CorrectLevel.H
         });
         this.newCode();
-        let myApp = this;
-        this.cronjob = setInterval(function(){
-          myApp.newCode();
-        }, 1000 * 60 * 1);
-        Loader.stop()
       },
-      newCode() {
-        this.$http.get(this.server + '/new-code').then(function(response){
-          let data = response.body;
+      newCode(id) {
+        let myApp = this;
+        this.codeTimer = setTimeout(function(){ myApp.newCode() }, 1000 * 60 * 1.5);
+        this.$http.get('/new-code').then(function(response) {
+          let data = response.data;
+          Loader.stop();
+          this.$root.loader = false;
           if ( !data.status ) {
             return;
           }
           this.qrcode.clear();
           this.qrcode.makeCode(data.qr);
-          this.codeStatus(data.uuid, data.ae);
+          this.cronjob.push({
+            job: setInterval(function(){ myApp.codeStatus(data.uuid, data.ae) }, 2000),
+            start: new Date().getTime(),
+          })
         },function(response){
           console.error('Error in Connection: ', response)
         })
       },
       saveMember(data) {
-        // data.account = this.defaultAccount;
         this.$http.post('/login', data).then(function(response){
           let data = response.data;
           if ( !data.status ) {
@@ -108,7 +110,6 @@
             });
             return;
           }
-          console.log('++++++++++++++++++++++', data)
           localStorage.access_token = data.access_token;
           localStorage.publicKey = data.publicKey;
           router.push('/');
@@ -117,24 +118,36 @@
         });
 
       },
+      stopCronjobs(stopAll=false) {
+        for( let i in this.cronjob ) {
+          let item = this.cronjob[i];
+          if( stopAll ) { clearInterval(item.job); continue; }
+          let now = new Date().getTime()
+          elapsed = ( now - item.start ) / 1000;
+          if( elapsed > (60 * 1.9) ) {
+            clearInterval(item.job);
+          }
+        }
+      },
       codeStatus(uuid, ae) {
+        this.stopCronjobs();
         let data = {
           uuid: uuid,
           ae: ae
         }
         let myApp = this;
-        this.$http.post(this.server + '/check-code', data).then(function(response){
-          let data = response.body;
-          console.log('DATA', data);
+        this.$http.post('/check-code', data).then(function(response){
+          let data = response.data;
           if ( !data.status ) {
-            setTimeout(function(){
-              myApp.codeStatus(uuid, ae);
-            }, 3000);
             return;
           }
-          clearInterval(this.cronjob);
+          if( this.loginDone ) { return; }
+          this.$root.loader = true;
+          this.stopCronjobs(true);
+          clearTimeout(this.codeTimer);
           this.saveMember(data.data);
-        },function(response){
+          this.loginDone = true;
+        },function(response) {
           console.error('Error in Connection: ', response)
         });
       }

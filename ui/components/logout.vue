@@ -25,6 +25,7 @@
     },
     mounted(){
       Loader.start();
+      this.$root.loader = true;
       let headers = getHeaders();
       this.$http.get('/logout', headers).then(function(response) {
         if( !response.data.hasOwnProperty('status') ) {
@@ -49,8 +50,10 @@
           footer: '',
           onClose: this.redirect,
         });
+        this.$root.loader = false;
       },function(response){
         Loader.stop();
+        this.$root.loader = false;
       })
     }
   }

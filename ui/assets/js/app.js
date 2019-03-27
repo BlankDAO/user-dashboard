@@ -47,6 +47,7 @@ Loader = (function(){
   self.loaderObj = null;
 
   self.start = function() {
+    return;
     self.loaderObj = swal({
       title: 'Please Wait',
       imageUrl: 'https://cdn-images-1.medium.com/max/1600/1*9EBHIOzhE1XfMYoKz1JcsQ.gif',
@@ -61,6 +62,7 @@ Loader = (function(){
   }
 
   self.stop = function() {
+    return;
     swal({
       timer: 0.1,
       showConfirmButton: false,
@@ -98,6 +100,7 @@ const app = new Vue({
       defaultAccount: null,
       LoginStatus: false,
       publicKey: '',
+      loader: true,
     }
   },
   methods: {
@@ -129,6 +132,7 @@ const app = new Vue({
       this.$http.post('/get-info', {'publicKey': this.publicKey}, headers).then(function(response) {
         if( response.data.status ) {
           this.accountInfo = response.data;
+          this.$root.loader = false;
           if ( callback ) callback();
           return;
         }
@@ -139,10 +143,8 @@ const app = new Vue({
     isLogin() {
       let headers = getHeaders();
       this.$http.get('/is-login', headers).then(function(response) {
-        console.log(response.data)
         if( response.data.status || response.data.msg == 'Missing Authorization Header' ) {
           this.LoginStatus = response.data.login_status;
-          console.log('this.LoginStatus', this.LoginStatus)
           if( !this.LoginStatus ) {
             router.push('/login');
             return;

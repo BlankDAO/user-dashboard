@@ -21,6 +21,19 @@
 
 <body>
 <div class="page-wrapper chiller-theme toggled" id="app">
+  <div class="lds-parent" v-if="$root.loader">
+    <div class="lds-roller">
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <p style="position: relative;top: 100%;left: 10%;">Loading...</p>
+    </div>
+  </div>
   <a id="show-sidebar" class="btn btn-sm btn-dark" href="#">
     <i class="fas fa-bars"></i>
   </a>

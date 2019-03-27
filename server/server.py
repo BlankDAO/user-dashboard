@@ -6,6 +6,7 @@ from web3 import Web3, HTTPProvider
 from datetime import timedelta
 from io import BytesIO as IO
 import nacl.encoding
+import requests
 import nacl.signing
 import twitter
 import pymongo
@@ -181,10 +182,21 @@ def calculate_rewards(publicKey):
 
 
 def add_brightid_score(publicKey, brightid_level_reached=False, score=0):
+    g.db.members.update_one({
+        'publicKey': publicKey
+    }, {'$set': {
+        'score': score,
+    }},
+    upsert=False)
+
     if brightid_level_reached:
         return True
 
     score = True if score >= 90 else False
+
+    if not score:
+            return score
+
     g.db.members.update_one({
         'publicKey': publicKey
     }, {'$set': {
@@ -192,8 +204,6 @@ def add_brightid_score(publicKey, brightid_level_reached=False, score=0):
     }},
     upsert=False)
 
-    if not score:
-        return score
 
     g.db.points.insert_one({
         'publicKey': publicKey,
@@ -264,6 +274,22 @@ def logout():
     jti = get_raw_jwt()['jti']
     revoked_store.set(jti, 'true', ACCESS_EXPIRES * 1.2)
     return json.dumps({'status': True, 'msg': 'Logout Successfully'})
+
+
+@app.route('/new-code')
+def new_code():
+    try:
+        r = requests.get('http://127.0.0.1:2200/new-code')
+        return r.text
+    except Exception as e:
+        raise ErrorToClient('Cant Get New Connection')
+
+
+@app.route('/check-code', methods=['POST'])
+def check_code():
+    data = json.loads(request.data)
+    r = requests.post('http://127.0.0.1:2200/check-code', data=data)
+    return r.text
 
 
 @app.route('/check-account', methods=['POST'])

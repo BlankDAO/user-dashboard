@@ -109,6 +109,7 @@
           'instagram_username': this.username,
         };
         Loader.start();
+        this.$root.loader = true;
         let headers = getHeaders();
         this.$http.post('/submit-instagram', data, headers).then(function(response){
           let data = response.data;
@@ -130,11 +131,13 @@
           this.$root.getInfo();
           // router.push('/');
           Loader.stop();
+          this.$root.loader = false;
         },function(response){
           console.error('Error in Connection: ', response)
         });
       },
       getInstagramImage() {
+        this.$root.loader = true;
         Loader.start();
         let data = {
           'publicKey': this.$root.accountInfo.data.publicKey,
@@ -142,9 +145,11 @@
         this.$http.post('/instagram-image', data).then(function(response){
           this.image = response.data.file_name;
           Loader.stop();
+          this.$root.loader = false;
         },function(response){
           console.error('Error in Connection: ', response);
           Loader.stop();
+          this.$root.loader = false;
         });
       },
     },
