@@ -48,26 +48,10 @@ Loader = (function(){
 
   self.start = function() {
     return;
-    self.loaderObj = swal({
-      title: 'Please Wait',
-      imageUrl: 'https://cdn-images-1.medium.com/max/1600/1*9EBHIOzhE1XfMYoKz1JcsQ.gif',
-      imageAlt: 'Loader',
-      backdrop: `
-        rgba(23, 24, 33, 0.81)
-      `,
-      timer: 7000,
-      allowOutsideClick: false,
-      showConfirmButton: false,
-    }).catch(swal.noop)
   }
 
   self.stop = function() {
     return;
-    swal({
-      timer: 0.1,
-      showConfirmButton: false,
-      allowOutsideClick: false,
-    }).catch(swal.noop);
   }
 
   return self;
