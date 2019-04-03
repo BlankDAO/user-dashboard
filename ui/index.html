@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <title>BlankDao Dashboard</title>
+    <title>BlankDAO Dashboard</title>
   	<meta charset="utf-8">
   	<meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Font Awesome -->
@@ -52,9 +52,7 @@
         </div>
         <div class="user-info" v-if="$root.accountInfo.data.name">
           <span class="user-name">{{$root.accountInfo.data.name}}
-            <!-- <strong>Smith</strong> -->
           </span>
-          <!-- <span class="user-role">Points: {{$root.accountInfo.data.points}}</span> -->
           <span class="user-role">BlankDAO Member</span>
           <span class="user-status">
             <i class="fa fa-circle"></i>
@@ -63,7 +61,6 @@
         </div>
         <div class="user-info" v-else>
           <span class="user-name">You're Not Login
-            <!-- <strong>Smith</strong> -->
           </span>
           <span class="user-role">None</span>
           <span class="user-status">
@@ -172,6 +169,10 @@
     <script src="assets/js/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@7.28.4/dist/sweetalert2.min.js"></script>
     <script src="assets/js/abiCrowdSale.js"></script>
+    <script type="text/javascript" src="assets/js/abiBlankToken.js"></script>
+    <script type="text/javascript" src="assets/js/abiCrowdSale.js"></script>
+    <script type="text/javascript" src="assets/js/abiStableToken.js"></script>
+    <script type="text/javascript" src="assets/js/buy.js?v=4.2"></script>
     <script src="assets/js/app.js?v=1.4"></script>
   </body>
 </html>

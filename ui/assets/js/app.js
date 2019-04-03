@@ -66,6 +66,7 @@ const routes = [
   { path: '/login', component: httpVueLoader('components/bright-id.vue') },
   { path: '/instagram', component: httpVueLoader('components/instagram-auth.vue') },
   { path: '/ethereum-address', component: httpVueLoader('components/ethereum-address.vue') },
+  { path: '/donate', component: httpVueLoader('components/donate.vue') },
   { path: '/logout', component: httpVueLoader('components/logout.vue') },
 ]
 

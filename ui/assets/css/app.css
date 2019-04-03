@@ -666,3 +666,100 @@ select {
     transform: rotate(360deg);
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.step-box {
+  transition: opacity 2s;
+  opacity: 0.3;
+}
+.step-box.done {
+  transition: opacity 2s;
+  opacity: 1;
+}
+.step-box.active {
+  transition: opacity 2s;
+  opacity: 1;
+}
+
+.m-title {
+  margin-left: 40%;
+}
+
+.modal-input-txt {
+  background-color: black;
+  color: white;
+  width: 100px;
+}
+
+.modal-buy-btn {
+  width: 35%;
+  margin: 5% 0% 0% 35%;
+  font-family: proxima-light;
+  font-size: 2.5vmin;
+}
+
+.sprator {
+  border: 1px solid #e9ecef;
+  width: 1200px;
+  margin-bottom: 3%;
+  margin-top: 1%;
+}
+
+.bdt-step img {
+  margin-top: 5px;
+  -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
+  filter: grayscale(100%);
+}
+
+.bdt-step .t-text {
+  font-family: proxima-regular;
+  font-size: 2vmin;
+  color: grayscale;
+  margin-top: 5px;
+}
+
+.bdt-step .active .t-text {
+  font-family: proxima-semibold;
+  font-size: 2.5vmin;
+  color: black;
+}
+
+.bdt-step .step-box .loader {
+  border: 5px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 5px solid black;
+  width: 35px;
+  height: 35px;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+}
+
+/*.bdt-step .active .loader {
+  visibility: visible;
+}*/
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

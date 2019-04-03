@@ -87,13 +87,11 @@ def error_to_client(error):
 
 @app.before_request
 def before_request():
-    # session.permanent = True
-    # app.permanent_session_lifetime = timedelta(minutes=10)
     client = pymongo.MongoClient('mongodb://localhost:27017/')
     g.db = client['blankdao']
-    g.w3 = Web3(HTTPProvider(config.INFURA_URL))
-    g.blank_token_contract = g.w3.eth.contract(
-        address=config.BLANK_TOKEN_ADDR, abi=config.BLANK_TOKEN_ABI)
+    # g.w3 = Web3(HTTPProvider(config.INFURA_URL))
+    # g.blank_token_contract = g.w3.eth.contract(
+    #     address=config.BLANK_TOKEN_ADDR, abi=config.BLANK_TOKEN_ABI)
 
 
 @app.after_request
@@ -108,6 +106,7 @@ def teardown_request(exception):
 
 def check_eth_addr(address):
     try:
+        g.w3 = Web3(HTTPProvider(config.INFURA_URL))
         return g.w3.toChecksumAddress(address)
     except Exception:
         raise ErrorToClient('Invalid Address')
@@ -124,14 +123,10 @@ def get_info():
     data = json.loads(request.data)
     if 'publicKey' not in data:
         raise ErrorToClient('Error in connection - No publicKey Founded')
+    # TODO: check if needed
     res = g.db.members.find_one({'publicKey': data['publicKey']})
     if not res:
-        return json.dumps({
-            'status': True,
-            'data': {
-                'brightid_confirm': False
-            }
-        })
+        raise ErrorToClient('No data')
     for key in ['_id', 'signedMessage', 'timestamp', 'twitter']:
         del res[key]
     try:
@@ -140,6 +135,7 @@ def get_info():
         res['BDT_balance'] =  'No Address Founded'
         pass
     res['points'] = calculate_rewards(res['publicKey'])
+    # TODO: check bright id confirm
     return json.dumps({'status': True, 'data': res, 'brightid_confirm': True})
 
 
@@ -168,7 +164,7 @@ def submit_ethereum():
 @app.route('/is-login')
 @jwt_required
 def is_login():
-    return json.dumps({'status': True, 'login_status': True, 'msg': 'You are not login'})
+    return json.dumps({'status': True, 'login_status': True, 'msg': 'You are login'})
 
 
 def calculate_rewards(publicKey):
@@ -194,17 +190,18 @@ def add_brightid_score(publicKey, brightid_level_reached=False, score=0):
 
     score = True if score >= 90 else False
 
-    if not score:
-            return score
+    # if not score:
+    #         return score
 
     g.db.members.update_one({
         'publicKey': publicKey
     }, {'$set': {
-        'brightid_level_reached': True,
+        'brightid_level_reached': score,
     }},
     upsert=False)
 
-
+    if  not score:
+        return False
     g.db.points.insert_one({
         'publicKey': publicKey,
         'type': 'brightid_score',
@@ -221,7 +218,7 @@ def init_types(data):
     data['instagram_confirmation'] = False
     data['twitter'] = None
     data['twitter_confirmation'] = False
-    # data['brightid_level_reached'] = True if data['score'] >= 90 else False
+    # data['brightid_level_reached'] = False
     return data
 
 
@@ -257,8 +254,6 @@ def submit_member():
         token = jwt_create_token(data['publicKey'])
         r.update( token )
         return jsonify( r ), 201
-
-
 
     data = init_types(data)
     g.db.members.insert_one(data)
@@ -502,6 +497,9 @@ def verify_message(public_key, timestamp, sig):
 
 def blank_token_balance(account):
     account = check_eth_addr(account)
+    g.blank_token_contract = g.w3.eth.contract(
+            address=config.BLANK_TOKEN_ADDR, abi=config.BLANK_TOKEN_ABI)
+
     func = g.blank_token_contract.functions.balanceOf(account)
     result = func.call({'from': account})
     return result
