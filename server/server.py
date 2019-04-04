@@ -15,6 +15,7 @@ import redis
 import gzip
 import json
 import os
+from time import time as now
 
 from flask_jwt_extended import (
     JWTManager, create_access_token, create_refresh_token, get_jti,
@@ -124,7 +125,9 @@ def get_info():
     if 'publicKey' not in data:
         raise ErrorToClient('Error in connection - No publicKey Founded')
     # TODO: check if needed
+    t1 = now()
     res = g.db.members.find_one({'publicKey': data['publicKey']})
+    print(now()-t1, '************************')
     if not res:
         raise ErrorToClient('No data')
     for key in ['_id', 'signedMessage', 'timestamp', 'twitter']:
@@ -218,7 +221,7 @@ def init_types(data):
     data['instagram_confirmation'] = False
     data['twitter'] = None
     data['twitter_confirmation'] = False
-    # data['brightid_level_reached'] = False
+    data['brightid_level_reached'] = False
     return data
 
 
