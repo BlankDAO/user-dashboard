@@ -1,4 +1,5 @@
-Obj = lambda: lambda: None
+def Obj(): return lambda: None
+
 
 INFURA_URL = 'https://mainnet.infura.io/v3/81a17a01107e4ac9bf8a556da267ae2d'
 
@@ -9,8 +10,8 @@ BLANK_TOKEN_ABI = '[{"constant": true, "inputs": [], "name": "mintingFinished", 
 BLANK_TOKEN_ADDR = '0x95A88E86a07867bB63720D8E8e785D271D06C1fc'
 
 TWIITER_API = {
-	'consumer_key': 'UwT......No',
-	'consumer_secret': 'dfBm8F....td'
+    'consumer_key': 'UwT......No',
+    'consumer_secret': 'dfBm8F....td'
 }
 
 
@@ -18,3 +19,4 @@ REWARDS = Obj()
 REWARDS.twitter = 5
 REWARDS.instagram = 5
 REWARDS.brightid_score = 5
+REWARDS.city = 5

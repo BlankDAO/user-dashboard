@@ -10,10 +10,12 @@
         <!-- Modal body -->
         <div class="modal-body step-progress">
           <div class="col col-12 row justify-content-center bdt-step animated fadeIn">
-            <div  class="col col-12 row justify-content-center step-box step-box-1"
-                  v-for="(step, index) in steps"
-                  v-bind:id="step.id"
-                  v-bind:class="{ active: index == currentStep, done: index < currentStep }">
+            <div
+              class="col col-12 row justify-content-center step-box step-box-1"
+              v-for="(step, index) in steps"
+              v-bind:id="step.id"
+              v-bind:class="{ active: index == currentStep, done: index < currentStep }"
+            >
               <div class="col col-1">
                 <img src="assets/image/metamask.png" height="30" v-if="step.type == 'metamask'">
                 <img src="assets/image/trx.png" height="30" v-else-if="step.type == 'trx'">
@@ -24,16 +26,17 @@
               </div>
               <div class="col col-2">
                 <div class="loader" v-show="index == currentStep"></div>
-                <div class="confirm-icon" v-show="index < currentStep"><img src="assets/image/confirm.png" height="30"></div>
+                <div class="confirm-icon" v-show="index < currentStep">
+                  <img src="assets/image/confirm.png" height="30">
+                </div>
               </div>
-            <div class="sprator"></div>
+              <div class="sprator"></div>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-
 </template>
 
 <style lang="css">
@@ -47,12 +50,20 @@
   animation: spin 2s linear infinite;
 }
 @-webkit-keyframes spin {
-  0% { -webkit-transform: rotate(0deg); }
-  100% { -webkit-transform: rotate(360deg); }
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
 }
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 .step-progress .sprator {
   border: 1px solid #e9ecef;
@@ -92,49 +103,48 @@
 </style>
 
 <script>
-  module.exports = {
-    data: function() {
-      return {
-        steps: null,
-        currentStep: 0,
+module.exports = {
+  data: function() {
+    return {
+      steps: null,
+      currentStep: 0
+    };
+  },
+  props: ["datas"],
+  methods: {
+    init() {
+      this.currentStep = 0;
+      this.assignId();
+      $("#myModal").modal({
+        backdrop: "static",
+        keyboard: false
+      });
+    },
+    assignId() {
+      for (var i in this.steps) {
+        let id =
+          "step-" +
+          Math.random()
+            .toString(36)
+            .substring(7);
+        this.steps[i].id = id;
       }
     },
-    props: ['datas'],
-    methods: {
-      init() {
-        this.currentStep = 0;
-        this.assignId();
-        $('#myModal').modal({
-            backdrop: 'static',
-            keyboard: false
-        });
-      },
-      assignId() {
-        for ( var i in this.steps ) {
-          let id = 'step-' + Math.random().toString(36).substring(7);
-          this.steps[i].id = id;
-        }
-      },
-      nextStep() {
-        if ( this.currentStep >= this.steps.length ) {
-          Swal.fire(
-            'Done Successfully',
-            '',
-            'success'
-          )
-          return;
-        }
-        this.currentStep++;
-      },
-    },
-    update(){
-    },
-    mounted(){
-      this.steps = this.datas;
-      this.init();
-      this.$root.$on('nextStep', () => {
-                this.nextStep();
-            })
+    nextStep() {
+      if (this.currentStep >= this.steps.length) {
+        Swal.fire("Done Successfully", "", "success");
+        return;
+      }
+      this.currentStep++;
     }
+  },
+  update() {},
+  mounted() {
+    this.steps = this.datas;
+    this.init();
+    this.$root.$on("nextStep", () => {
+      this.nextStep();
+    });
   }
+};
 </script>

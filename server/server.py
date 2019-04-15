@@ -27,6 +27,13 @@ def check_eth_addr(address):
         raise ErrorToClient('Invalid Address')
 
 
+def check_dao_confirm(publicKey):
+    res = g.db.dao.find_one({'publicKey': publicKey})
+    if not res:
+        return False
+    return res['confirm']
+
+
 @bp.route('/get-info', methods=['POST'])
 @jwt_required
 def get_info():
@@ -44,8 +51,8 @@ def get_info():
             check_eth_addr(res['ethereum_address']))
     except:
         res['BDT_balance'] = 'No Address Founded'
-        pass
     res['points'] = calculate_rewards(res['publicKey'])
+    res['dao_confirmed'] = check_dao_confirm(data['publicKey'])
     # TODO: check bright id confirm
     return json.dumps({'status': True, 'data': res, 'brightid_confirm': True})
 
@@ -71,6 +78,45 @@ def submit_ethereum():
     return json.dumps({'status': True})
 
 
+@bp.route('/submit-dao', methods=['POST'])
+@jwt_required
+def submit_dao():
+    data = json.loads(request.data)
+    if 'publicKey' not in data:
+        raise ErrorToClient('Error in connection - No publicKey Founded')
+    if 'dao' not in data:
+        raise ErrorToClient('Error in connection - No DAO Founded')
+    res = g.db.members.find_one({'publicKey': data['publicKey']})
+    if not res:
+        raise ErrorToClient('No Public Key Founded')
+    g.db.dao.update_one({
+        'publicKey': data['publicKey']
+    }, {'$set': {
+        'publicKey': data['publicKey'],
+        'dao': data['dao'],
+        'confirm': False,
+        'processed': False,
+        'counter': 0,
+    }}, upsert=True)
+    return json.dumps({'status': True})
+
+
+@bp.route('/check-dao', methods=['POST'])
+def check_dao():
+    data = json.loads(request.data)
+    if 'publicKey' not in data:
+        raise ErrorToClient('Error in connection - No publicKey Founded')
+    res = g.db.dao.find_one({'publicKey': data['publicKey']})
+    if not res:
+        raise ErrorToClient('No Public Key Founded')
+    if res['confirm']:
+        return json.dumps({'status': True})
+    if res['processed'] and not res['confirm']:
+        raise ErrorToClient(
+            'Your DAO Address not Confirmed, Please Enter Your DAO Again')
+    return json.dumps({'status': False})
+
+
 @bp.route('/submit-city', methods=['POST'])
 @jwt_required
 def submit_city():
@@ -86,10 +132,13 @@ def submit_city():
         '_id': res['_id']
     }, {'$set': {
         'city': data['city'],
-    }},
-        upsert=False)
+    }}, upsert=False)
+    g.db.points.insert_one({
+        'publicKey': data['publicKey'],
+        'type': 'city',
+        'value': config.REWARDS.city
+    })
     return json.dumps({'status': True})
-
 
 
 @bp.route('/is-login')

@@ -1,17 +1,16 @@
 <template type="text/x-template">
-<div>
-  <h2 class="col col-12">Login</h2>
-  <hr>
-  <div class="container">
-    <div class="row justify-content-center">
+  <div>
+    <h2 class="col col-12">Login</h2>
+    <hr>
+    <div class="container">
+      <div class="row justify-content-center">
         <div class="col col-12">
           <p class="title-head">Please scan this code in your BrightID</p>
         </div>
-        <div class="col col-12 row justify-content-center" id="qr">
-        </div>
+        <div class="col col-12 row justify-content-center" id="qr"></div>
+      </div>
     </div>
   </div>
-</div>
 </template>
 
 <style lang="css">
@@ -46,114 +45,125 @@
 </style>
 
 <script>
-  module.exports = {
-    data: function() {
-      return {
-        confrim: false,
-        codeTimer: null,
-        loginDone: false,
-        msg: '',
-        defaultAccount: '',
-        qrcode: null,
-        cronjob: [],
-        counter: 1,
-      }
+module.exports = {
+  data: function() {
+    return {
+      confrim: false,
+      codeTimer: null,
+      loginDone: false,
+      msg: "",
+      defaultAccount: "",
+      qrcode: null,
+      cronjob: [],
+      counter: 1
+    };
+  },
+  props: [],
+  methods: {
+    init() {
+      this.qrcode = new QRCode("qr", {
+        text: "",
+        width: 255,
+        height: 255,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+      this.newCode();
     },
-    props: [
-    ],
-    methods: {
-      init() {
-        if ( this.$root.accountInfo.brightid_confirm === true ) {
-          router.push('/');
-          return;
-        }
-
-        this.qrcode = new QRCode("qr", {
-            text: "",
-            width: 255,
-            height: 255,
-            colorDark : "#000000",
-            colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.H
-        });
-        this.newCode();
-      },
-      newCode(id) {
-        let myApp = this;
-        this.codeTimer = setTimeout(function(){ myApp.newCode() }, 1000 * 60 * 1.5);
-        this.$http.get('/new-code').then(function(response) {
+    newCode(id) {
+      let myApp = this;
+      this.codeTimer = setTimeout(function() {
+        myApp.newCode();
+      }, 1000 * 60 * 1.5);
+      this.$http.get("/new-code").then(
+        function(response) {
           let data = response.data;
           Loader.stop();
           this.$root.loader = false;
-          if ( !data.status ) {
+          if (!data.status) {
             return;
           }
           this.qrcode.clear();
           this.qrcode.makeCode(data.qr);
           this.cronjob.push({
-            job: setInterval(function(){ myApp.codeStatus(data.uuid, data.ae) }, 2000),
-            start: new Date().getTime(),
-          })
-        },function(response){
-          console.error('Error in Connection: ', response)
-        })
-      },
-      saveMember(data) {
-        this.$http.post('/login', data).then(function(response){
+            job: setInterval(function() {
+              myApp.codeStatus(data.uuid, data.ae);
+            }, 2000),
+            start: new Date().getTime()
+          });
+        },
+        function(response) {
+          console.error("Error in Connection: ", response);
+        }
+      );
+    },
+    saveMember(data) {
+      this.$http.post("/login", data).then(
+        function(response) {
           let data = response.data;
-          if ( !data.status ) {
+          if (!data.status) {
             Swal.fire({
-              type: 'error',
-              title: 'Error on saving data',
-              text: 'Details: ' + data.msg,
-              footer: ''
+              type: "error",
+              title: "Error on saving data",
+              text: "Details: " + data.msg,
+              footer: ""
             });
             return;
           }
           localStorage.access_token = data.access_token;
           localStorage.publicKey = data.publicKey;
-          router.push('/');
-        },function(response){
-          console.error('Error in Connection: ', response)
-        });
-
-      },
-      stopCronjobs(stopAll=false) {
-        for( let i in this.cronjob ) {
-          let item = this.cronjob[i];
-          if( stopAll ) { clearInterval(item.job); continue; }
-          let now = new Date().getTime()
-          elapsed = ( now - item.start ) / 1000;
-          if( elapsed > (60 * 1.9) ) {
-            clearInterval(item.job);
-          }
+          router.push("/");
+        },
+        function(response) {
+          console.error("Error in Connection: ", response);
         }
-      },
-      codeStatus(uuid, ae) {
-        this.stopCronjobs();
-        let data = {
-          uuid: uuid,
-          ae: ae
+      );
+    },
+    stopCronjobs(stopAll = false) {
+      for (let i in this.cronjob) {
+        let item = this.cronjob[i];
+        if (stopAll) {
+          clearInterval(item.job);
+          continue;
         }
-        let myApp = this;
-        this.$http.post('/check-code', data).then(function(response){
+        let now = new Date().getTime();
+        elapsed = (now - item.start) / 1000;
+        if (elapsed > 60 * 1.9) {
+          clearInterval(item.job);
+        }
+      }
+    },
+    codeStatus(uuid, ae) {
+      this.stopCronjobs();
+      let data = {
+        uuid: uuid,
+        ae: ae
+      };
+      let myApp = this;
+      this.$http.post("/check-code", data).then(
+        function(response) {
           let data = response.data;
-          if ( !data.status ) {
+          if (!data.status) {
             return;
           }
-          if( this.loginDone ) { return; }
+          if (this.loginDone) {
+            return;
+          }
           this.$root.loader = true;
           this.stopCronjobs(true);
           clearTimeout(this.codeTimer);
           this.saveMember(data.data);
           this.loginDone = true;
-        },function(response) {
-          console.error('Error in Connection: ', response)
-        });
-      }
-    },
-    mounted(){
-      this.init();
+        },
+        function(response) {
+          console.error("Error in Connection: ", response);
+        }
+      );
     }
+  },
+  mounted() {
+    this.init();
   }
+};
 </script>

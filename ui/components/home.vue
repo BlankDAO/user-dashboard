@@ -106,6 +106,17 @@
             <span class="dot" v-else></span>
             <hr class="inside">
           </li>
+          <li class="row" :class="{ done: $root.accountInfo.data.dao_confirmed }">
+            <a href="#/dao" class="auth-item col col-4 offset-3">Add your DAO</a>
+            <img
+              src="assets/image/confirm.png"
+              height="25"
+              class="confirm"
+              v-if="$root.accountInfo.data.dao_confirmed"
+            >
+            <span class="dot" v-else></span>
+            <hr class="inside">
+          </li>
           <li class="row" :class="{ done: $root.accountInfo.data.twitter_confirmation }">
             <a
               :disabled="$root.accountInfo.data.twitter_confirmation"

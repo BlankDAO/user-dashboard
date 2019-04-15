@@ -86,6 +86,10 @@ const routes = [{
     component: httpVueLoader('components/city.vue')
   },
   {
+    path: '/dao',
+    component: httpVueLoader('components/dao-address.vue')
+  },
+  {
     path: '/ethereum-address',
     component: httpVueLoader('components/ethereum-address.vue')
   },
@@ -162,14 +166,15 @@ const app = new Vue({
           this.LoginStatus = response.data.login_status;
           if (!this.LoginStatus) {
             router.push('/login');
+            alert(response.data.msg)
             return;
           }
           this.publicKey = localStorage.getItem('publicKey');
           this.getInfo();
         }
       }, function (response) {
-        // router.push('/login');
         router.push('/login');
+        // router.push('/');
       })
     },
     redircetUrl() {
