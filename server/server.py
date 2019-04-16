@@ -443,7 +443,7 @@ def instagram_apply():
 
 @bp.route('/instagram-image/<file>')
 def get_instagram_image(file):
-    return send_from_directory('../insta-images', file + '.png')
+    return send_from_directory('/tmp/insta-images', file + '.png')
 
 
 def update_member_twitters_state(publicKey):
