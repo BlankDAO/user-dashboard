@@ -296,6 +296,8 @@ module.exports = {
   },
   mounted() {
     this.$root.isLogin();
+    this.$root.publicKey = localStorage.getItem("publicKey");
+    this.$root.getInfo();
     Loader.stop();
     APP = this;
   }

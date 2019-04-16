@@ -169,8 +169,6 @@ const app = new Vue({
             alert(response.data.msg)
             return;
           }
-          this.publicKey = localStorage.getItem('publicKey');
-          this.getInfo();
         }
       }, function (response) {
         router.push('/login');
