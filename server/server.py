@@ -6,9 +6,11 @@ import nacl.encoding
 import nacl.signing
 import requests
 import twitter
+import base64
 import config
 import json
-
+import uuid
+import os
 
 from flask_jwt_extended import (
     JWTManager, create_access_token, create_refresh_token, get_jti,
@@ -46,15 +48,24 @@ def get_info():
         raise ErrorToClient('No data')
     for key in ['_id', 'signedMessage', 'timestamp', 'twitter']:
         del res[key]
-    try:
-        res['BDT_balance'] = blank_token_balance(
-            check_eth_addr(res['ethereum_address']))
-    except:
-        res['BDT_balance'] = 'No Address Founded'
+    res['BDT_balance'] = 0
     res['points'] = calculate_rewards(res['publicKey'])
     res['dao_confirmed'] = check_dao_confirm(data['publicKey'])
     # TODO: check bright id confirm
     return json.dumps({'status': True, 'data': res, 'brightid_confirm': True})
+
+
+@bp.route('/check-bdt-balance/<publicKey>')
+@jwt_required
+def check_bdt_balance(publicKey):
+    BDT_balance = 0
+    try:
+        res = g.db.members.find_one({'publicKey': publicKey})
+        BDT_balance = blank_token_balance(
+            check_eth_addr(res['ethereum_address']))
+    except:
+        BDT_balance = 0
+    return jsonify({'status': True, 'BDT_balance': BDT_balance})
 
 
 @bp.route('/submit-ethereum', methods=['POST'])
@@ -220,6 +231,25 @@ def jwt_create_token(publicKey):
     return ret
 
 
+def save_photo(photo):
+    filename = str(uuid.uuid4())
+    # user photo its not important, so we save it in tmp folder
+    path = '/tmp/blankdao-user-images'
+    if not os.path.exists(path):
+        os.mkdir(path)
+
+    data = photo.split(',')[1]
+    data = base64.b64decode(data)
+    with open('{}/{}.png'.format(path, filename), 'wb') as f:
+        f.write(data)
+    return filename
+
+
+@bp.route('/user-photo/<file>')
+def user_photo(file):
+    return send_from_directory('/tmp/blankdao-user-images/', file + '.png')
+
+
 @bp.route('/login', methods=['POST'])
 def submit_member():
     # TODO: just allow the js server call this function - get a signutare
@@ -236,14 +266,16 @@ def submit_member():
                            res['brightid_level_reached'], data['score'])
         token = jwt_create_token(data['publicKey'])
         r.update(token)
-        return jsonify(r), 201
+        return jsonify(r)
 
     data = init_types(data)
+    data['photoURL'] = save_photo(data['photo'])
+    del data['photo']
     g.db.members.insert_one(data)
     add_brightid_score(data['publicKey'], False, data['score'])
     token = jwt_create_token(data['publicKey'])
     r.update(token)
-    return jsonify(r), 201
+    return jsonify(r)
 
 
 @bp.route('/logout')
@@ -443,6 +475,7 @@ def instagram_apply():
 
 @bp.route('/instagram-image/<file>')
 def get_instagram_image(file):
+    # TODO: if its not exsist, then call pic genrator
     return send_from_directory('/tmp/insta-images', file + '.png')
 
 

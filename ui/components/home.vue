@@ -3,8 +3,8 @@
     <div class="row justify-content-center">
       <h2 class="col col-12">Dashboard</h2>
       <hr>
-      <div class="col col-12 profile">
-        <img :src="$root.accountInfo.data.photo">
+      <div class="col col-12 profile" v-if="$root.accountInfo.data.photoURL">
+        <img :src="'user-photo/' + $root.accountInfo.data.photoURL">
       </div>
       <div class="col col-12 name">
         <p>{{$root.accountInfo.data.name}}</p>
@@ -155,9 +155,6 @@
 </template>
 
 <style lang="css">
-.inside {
-  /*width: 50%;*/
-}
 .dot {
   height: 25px;
   width: 25px;
@@ -179,8 +176,6 @@
   font-size: 1.5em;
   font-family: proxima-light;
   margin-right: 5%;
-}
-.confirm {
 }
 .btn-social {
   color: #000 !important;
@@ -268,6 +263,24 @@ module.exports = {
   },
   props: [],
   methods: {
+    init() {
+      this.checkBDTbalance();
+    },
+    checkBDTbalance() {
+      if (!this.publicKey) {
+        return;
+      }
+      let headers = getHeaders();
+      this.$http.get("/check-bdt-balance/" + this.publicKey, headers).then(
+        function(response) {
+          if (response.data.status) {
+            this.$root.accountInfo.data.BDT_balance = response.data.BDT_balance;
+            return;
+          }
+        },
+        function(response) {}
+      );
+    },
     twitterLogin() {
       Loader.start();
       this.$root.loader = true;
@@ -298,8 +311,7 @@ module.exports = {
     this.$root.isLogin();
     this.$root.publicKey = localStorage.getItem("publicKey");
     this.$root.getInfo();
-    Loader.stop();
-    APP = this;
+    this.init();
   }
 };
 </script>

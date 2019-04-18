@@ -152,11 +152,22 @@ const app = new Vue({
       }, headers).then(function (response) {
         if (response.data.status) {
           this.accountInfo = response.data;
+          this.accountInfo.data.photo = null;
           this.$root.loader = false;
           if (callback) callback();
+          this.checkBDTbalance();
           return;
         }
         // this.reloadPage(response);
+      }, function (response) {})
+    },
+    checkBDTbalance() {
+      let headers = getHeaders();
+      this.$http.get('/check-bdt-balance/' + this.publicKey, headers).then(function (response) {
+        if (response.data.status) {
+          this.accountInfo.data.BDT_balance = response.data.BDT_balance;
+          return;
+        }
       }, function (response) {})
     },
     isLogin() {
@@ -183,12 +194,8 @@ const app = new Vue({
       }
     },
   },
-  computed: {
-
-  },
   mounted() {
     $(".page-wrapper").removeClass("toggled");
-    Loader.start();
   },
 }).$mount('#app')
 
