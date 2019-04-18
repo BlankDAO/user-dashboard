@@ -11,7 +11,6 @@ from time import time as now
 connection_list = list()
 
 
-
 class Browser(object):
     def __init__(self):
         pass
@@ -34,7 +33,6 @@ class Browser(object):
         except Exception as e:
             self.display.stop()
             self.driver = None
-
 
     def start(self, dao):
         self.kill_firefox()
@@ -76,7 +74,7 @@ def get_dao_list():
     return db.dao.find({'processed': False})
 
 
-while True:
+def main():
     dao_list = get_dao_list()
     db = create_connection()
     for dao in dao_list:
@@ -105,3 +103,12 @@ while True:
     close_connections()
     print('Wait for 10 second')
     time.sleep(10)
+
+
+if __name__ == "__main__":
+    try:
+        while True:
+            main()
+    except Exception as e:
+        print("Exception Error:", e)
+        time.sleep(15)
