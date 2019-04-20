@@ -34,6 +34,12 @@ class Browser(object):
             self.display.stop()
             self.driver = None
 
+    def open_system_menu(self):
+        content = self.driver.find_elements_by_tag_name('span')
+        for element in content:
+            if element.text == 'system':
+                element.click()
+
     def start(self, dao):
         self.kill_firefox()
         self.open_browser(dao)
@@ -43,7 +49,8 @@ class Browser(object):
         if self.driver == None:
             return 'Undifind'
 
-        content = self.driver.find_elements_by_class_name('item')
+        self.open_system_menu()
+        content = self.driver.find_elements_by_tag_name('span')
         # self.driver.save_screenshot(str(now())+'.png') # check state
         for element in content:
             if element.text == 'Settings':
