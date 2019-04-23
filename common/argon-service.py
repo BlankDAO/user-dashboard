@@ -51,7 +51,7 @@ class Browser(object):
 
         self.open_system_menu()
         content = self.driver.find_elements_by_tag_name('span')
-        # self.driver.save_screenshot(str(now())+'.png') # check state
+#        self.driver.save_screenshot(str(now())+'.png') # check state
         for element in content:
             if element.text == 'Settings':
                 element.click()
@@ -112,10 +112,13 @@ def main():
     time.sleep(10)
 
 
+
 if __name__ == "__main__":
-    try:
-        while True:
+    while True:
+        try:
+            print('*** START ***')
+            # TODO: we have a bug in pymongo conection on long run
             main()
-    except Exception as e:
-        print("Exception Error:", e)
-        time.sleep(15)
+        except Exception as e:
+            print("Exception Error:", e)
+            time.sleep(5)
